@@ -1,5 +1,18 @@
 # -*- coding: utf-8 -*-
 
+'''
+This module is currently horribly overloaded
+and should be split into:
+
+	* Display
+	* Audio
+	* Error
+	* Logic
+
+version: 1.0
+author: Daniel O'Grady	
+'''
+
 from threading import Thread
 import time
 import os
@@ -116,13 +129,22 @@ class AudioMixer(Thread):
 	to create a cacophony of effects for when you just really
 	can't get out of bed...
 	'''
-	def __init__(self, basedir = ".", sound_dir = "sounds", ambient_dir = "ambient"):
+	def __init__(self, basedir = ".", sound_dir = "sounds", ambient_dir = "ambient", channels = 3):
+		'''
+		Constructor
+		basedir: lowest common ancestor of sound_dir and ambient_dir
+		sound_dir: subdirectory in which effect sounds are stored
+		ambient_dir: subdirectory in which ambient sounds are stored
+		channels: channel count. First channel is always for ambient, all further channels are for effects
+		'''
+		if channels < 2:
+			raise AudioException("Invalid channel count '%s', expected at least 2 channels" % (channels,))
 		Thread.__init__(self, target = self.mix)
 		self.ambients = self.load_sounds("/".join((basedir, ambient_dir)))
 		self.sounds = self.load_sounds("/".join((basedir, sound_dir)))
-		mixer.init(channels = 3)
+		mixer.init(channels = channels)
 		self.ambient_chan = mixer.Channel(0)
-		self.sound_chans = [mixer.Channel(i) for i in range(1,2)]
+		self.sound_chans = [mixer.Channel(i) for i in range(1,channels)]
 		self.ambient_chan.set_endevent(Event.SOUND_ENDED)
 		for i in range(0, len(self.sound_chans)):
 			self.sound_chans[i].set_endevent(Event.SOUND_ENDED + i)
@@ -135,27 +157,25 @@ class AudioMixer(Thread):
 		'''
 		sounds = list(map(lambda f: "%s/%s" % (dir, f), [f for f in os.listdir(dir) if f.endswith(extensions)]))
 		if not sounds:
-			raise AudioException("No audio files could be loaded from '%s'" % (dir,))
+			raise AudioException("No audio files could be loaded from '%s' with extensions %s" % (dir,extensions))
 		return sounds
 		
-	def next_sound(self, channel = 0):
+	def next_sound(self, channel = 0, fade_ms = 1000):
 		'''
 		Plays the next random sound in the
 		given channel.
 		'''
-		if not 0 < channel < len(self.sound_chans):
-			raise AudioException("Invalid channel '%s'" % (channel,))
+		if not (0 <= channel < len(self.sound_chans)):
+			raise AudioException("Invalid channel %s, must be between 0 and %s" % (channel,len(self.sound_chans)))
 		s = mixer.Sound(random.choice(self.sounds))
-		self.sound_chans[channel].play(s)
+		self.sound_chans[channel].play(s, fade_ms = fade_ms)
 		
-	def next_ambient(self):
+	def next_ambient(self, fade_ms = 10000):
 		'''
 		Plays a random ambient, looping forever.
 		'''
-		print("playing ambient")
 		s = mixer.Sound(random.choice(self.ambients))
-		print(s)
-		self.ambient_chan.play(s, loops = -1)
+		self.ambient_chan.play(s, loops = -1, fade_ms = fade_ms)
 
 	def mix(self):
 		'''
@@ -163,8 +183,8 @@ class AudioMixer(Thread):
 		random effect in each effect channel.
 		'''
 		self.next_ambient()
-		map(lambda i: self.next_sound(channel = i), range(0, len(self.sound_chans)))
-		
+		for i in range(0, len(self.sound_chans)):
+			self.next_sound(channel = i)
 
 def main():
 	def quit():
@@ -192,7 +212,6 @@ def main():
 			if e.type == pygame.QUIT:
 				running = False
 			elif e.type >= Event.SOUND_ENDED and e.type <= Event.SOUND_ENDED + len(am.sound_chans):
-				print("ending " + str(e.type - Event.SOUND_ENDED))
 				am.next_sound(e.type - Event.SOUND_ENDED)
 			else:
 				pass
