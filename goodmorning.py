@@ -185,37 +185,42 @@ class AudioMixer(Thread):
 		self.next_ambient()
 		for i in range(0, len(self.sound_chans)):
 			self.next_sound(channel = i)
-
-def main():
-	def quit():
+			
+class GoodMorning(object):
+	def quit(self):
 		trans.stop()
-		pygame.quit()		
+		pygame.quit()
+	
+	def __init__(self):
+		pygame.init()
+		pygame.display.set_mode((0,0),pygame.FULLSCREEN)
+		self.am = AudioMixer(sound_dir = "birds", ambient_dir = "ambient")
+		dimensions = (0,0)
+		dimensions = (400,200)
+		display=pygame.display.set_mode(dimensions,0,32)
+		# enabling the following line is crucial for having a proper visual experience
+		# but also ruins your day since there is no way to kill the program yet
+		#pygame.display.toggle_fullscreen() 
+		self.trans = Sunrise(display)
 		
-	pygame.init()
-	pygame.display.set_mode((0,0),pygame.FULLSCREEN)
+	def start(self):
+		self.trans.start()
+		self.am.mix()
 
-	dimensions = (0,0)
-	dimensions = (400,200)
-	display=pygame.display.set_mode(dimensions,0,32)
-	# enabling the following line is crucial for having a proper visual experience
-	# but also ruins your day since there is no way to kill the program yet
-	#pygame.display.toggle_fullscreen() 
+		running = True
+		while running:
+			for e in pygame.event.get():
+				if e.type == pygame.QUIT:
+					running = False
+				elif e.type >= Event.SOUND_ENDED and e.type <= Event.SOUND_ENDED + len(self.am.sound_chans):
+					self.am.next_sound(e.type - Event.SOUND_ENDED)
+				else:
+					pass
+			pygame.display.update()
+		quit()			
+		
+def main():
+	GoodMorning().start()
 
-	trans = Sunrise(display)
-	trans.start()
-	am = AudioMixer(sound_dir = "birds", ambient_dir = "ambient")
-	am.mix()
-
-	running = True
-	while running:
-		for e in pygame.event.get():
-			if e.type == pygame.QUIT:
-				running = False
-			elif e.type >= Event.SOUND_ENDED and e.type <= Event.SOUND_ENDED + len(am.sound_chans):
-				am.next_sound(e.type - Event.SOUND_ENDED)
-			else:
-				pass
-		pygame.display.update()
-	quit()
 
 main()
