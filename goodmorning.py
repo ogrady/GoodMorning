@@ -19,7 +19,6 @@ import os
 import functools
 import random
 import schedule
-import time
 
 from pygame import mixer, display, draw, locals
 import pygame
@@ -35,6 +34,14 @@ class AudioException(GoodMorningException):
 class DisplayException(GoodMorningException):
     def __init__(self, message):
         GoodMorningException.__init__(self, message)        
+
+class AlarmException(GoodMorningException):
+    def __init__(self, message):
+        GoodMorningException.__init__(self, message)     
+
+class SchedulerException(GoodMorningException):
+    def __init__(self, message):
+        GoodMorningException.__init__(self, message)    
 
 class Event(object):
     '''
@@ -200,7 +207,7 @@ class GoodMorning(object):
         self.am = AudioMixer(sound_dir = "birds", ambient_dir = "ambient")
         dimensions = (0,0)
         dimensions = (400,200)
-        display=pygame.display.set_mode(dimensions,0,32)
+        display = pygame.display.set_mode(dimensions,0,32)
         # enabling the following line is crucial for having a proper visual experience
         # but also ruins your day since there is no way to kill the program yet
         #pygame.display.toggle_fullscreen() 
@@ -208,7 +215,7 @@ class GoodMorning(object):
         
     def start(self):
         self.trans.start()
-        self.am.mix()
+        self.am.start() # mix() statt start()?
 
         running = True
         while running:
@@ -223,20 +230,89 @@ class GoodMorning(object):
         quit()  
 
 
-class Scheduler(object):
-    pass
+def foo():
+        print("working")
+
+class Scheduler(Thread):
+    @property
+    def jobs(self):
+        return self._scheduler.jobs
+
+    def __init__(self, sleep = 60):
+        # sleep: interval in seconds in which the Scheduler checks for pending jobs
+        Thread.__init__(self, target = self.run)
+        self._scheduler = schedule.Scheduler()
+        self.running = False
+
+    def stop(self):
+        self.running = False
+
+    def add_alarm(self, alarm):
+        self._scheduler.every().day.at(alarm.string).do(alarm.ring)
+
+    def remove_alarm(self, index):
+        if index >= len(self._scheduler.jobs):
+            raise SchedulerException("Invalid index %d" % (index))
+        self._scheduler.cancel_job(self._scheduler.jobs[index])
+
+    def run(self):
+        self.running = True
+        while self.running:
+            self._scheduler.run_pending()
+            time.sleep(self.delay)
+
+class Alarm(object):
+    '''
+    Encapsulation for an alarm event.
+    '''
+    @property
+    def string(self):
+        return "%d:%d" % (self.hour, self.minute)
+
+    @property
+    def hour(self):
+        return self._hour
+
+    @hour.setter
+    def hour(self, value):
+        if not (0 <= value < 24):
+            raise AlarmException("Invalid hour: %d" % (value,))
+        self._hour = value
+
+    @property
+    def minute(self):
+        return self._minute
+
+    def ring(self):
+        '''
+        Action to take when this alarm rings.
+        '''
+        pass
+
+    @minute.setter
+    def minute(self, value):
+        if not (0 <= value < 60):
+            raise AlarmException("Invalid minutes: %d" % (value,))
+        self._minute = value
+
+    def __init__(self, hour, minute):
+        '''
+        hour: hour on which to run the alarm
+        minute: minute on which to run the alarm
+        '''
+        self.hour = hour
+        self.minute = minute
 
 def main():
     #GoodMorning().start()
-    def job():
-        print("I'm working...")
+    s = Scheduler()
+    a1 = Alarm(21,21)
+    s.add_alarm(a1)
+    print(s.jobs)
+    s.remove_alarm(0)
+    print(s.jobs)
+    s.remove_alarm(0)
+    s.start()
 
-    schedule.every(10).seconds.do(job)
-    schedule.every().hour.do(job)
-    schedule.every().day.at("10:30").do(job)
-
-    while 1:
-        schedule.run_pending()
-        time.sleep(1)
 
 main()
