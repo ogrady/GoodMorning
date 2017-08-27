@@ -23,6 +23,7 @@ import pygame
 import audio
 import display
 import util
+
 class GoodMorning(object):
     def quit(self):
         trans.stop()
@@ -39,7 +40,7 @@ class GoodMorning(object):
         # enabling the following line is crucial for having a proper visual experience
         # but also ruins your day since there is no way to kill the program yet
         #pygame.display.toggle_fullscreen() 
-        self.trans = display.Sunrise(disp)
+        self.trans = display.LEDProto() #display.Sunrise(disp)
         
     def start(self):
         self.trans.start()

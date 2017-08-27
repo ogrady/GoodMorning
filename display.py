@@ -63,6 +63,12 @@ class ColourTransition(Thread):
         g = min(self.gmax,(g+self.gd(g)))
         b = min(self.bmax,(b+self.bd(b)))
         self.rgb = (r,g,b)
+    
+    def show(self):
+        '''
+        Displays the current state of the transition.
+        '''
+        self.display.fill(self.rgb)
         
     def transit(self):
         '''
@@ -73,7 +79,7 @@ class ColourTransition(Thread):
         self.rgb = self.init
         while self.running:
             self.next()
-            self.display.fill(self.rgb)
+            self.show()
             time.sleep(self.sleep)  
 
 class Sunrise(ColourTransition):
@@ -85,4 +91,31 @@ class Sunrise(ColourTransition):
             , gmax = 220
             , bmax = 220
             , sleep = 0.5
+            )
+
+class LEDProto(Sunrise):
+    
+    
+    def __init__(self, led_count = 10):
+        import pygame  
+        
+        ColourTransition.__init__(self, display = None)
+        # pygame.display.set_mode((0,0),pygame.FULLSCREEN)
+        dimensions = (400,200)
+        self.display = pygame.display.set_mode(dimensions,0,32)
+        self.leds = [(0,0,0)] * led_count
+        
+    def set(self, index, r, g, b):
+        self.leds[index] = (r,g,b)
+        
+    def show(self):
+        import pygame 
+        
+        self.display.fill((255,255,255))
+        for i in range(len(self.leds)):
+            pygame.draw.ellipse(
+                self.display,
+                self.leds[i],
+                pygame.Rect(50, 10 * i, 10, 10),
+                1
             )
