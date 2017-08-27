@@ -97,13 +97,13 @@ class LEDProto(Sunrise):
     LED_size = 10
     LED_space = 5
     
+    import pygame
+    
     def __init__(self, led_count = 100):
-        import pygame  
-        
         Sunrise.__init__(self, display = None)
         # pygame.display.set_mode((0,0),pygame.FULLSCREEN)
         dimensions = (LEDProto.LED_size, 20 + led_count * LEDProto.LED_size)
-        self.display = pygame.display.set_mode(dimensions,0,32)
+        self.display = LEDProto.pygame.display.set_mode(dimensions,0,32)
         self.leds = [(0,0,0)] * led_count
         
     def set(self, index, r, g, b):
@@ -120,15 +120,40 @@ class LEDProto(Sunrise):
         self.rgb = (r,g,b)
         
     def show(self):
-        import pygame 
-        
         self.display.fill((0,0,0))
         for i in range(len(self.leds)):
             s = LEDProto.LED_size
-            pygame.draw.ellipse(
+            LEDProto.pygame.draw.ellipse(
                 self.display,
                 self.leds[i],
-                pygame.Rect(0, s * i + LEDProto.LED_space * i, s, s),
+                LEDProto.pygame.Rect(0, s * i + LEDProto.LED_space * i, s, s),
                 0
             )
-            print(self.leds[i])
+
+class LED(Sunrise):
+    # Simple demo of of the WS2801/SPI-like addressable RGB LED lights.
+    import time
+    import RPi.GPIO as GPIO
+     
+    # Import the WS2801 module.
+    import Adafruit_WS2801 as Strip
+    import Adafruit_GPIO.SPI as SPI
+    
+    def __init__(self, led_count = 100):
+        Sunrise.__init__(self, display = None)
+        # self.leds = [(0,0,0)] * led_count
+        pixels.clear()
+        pixels.show()
+    
+    def next(self):
+        r,g,b = self.rgb
+        
+        r = min(self.rmax,(r+self.rd(r)))
+        g = min(self.gmax,(g+self.gd(g)))
+        b = min(self.bmax,(b+self.bd(b)))
+        for i in range(pixels.count()):
+            pixels.set_pixel(i, (r,g,b))
+        self.rgb = (r,g,b)
+        
+    def show(self):
+        pixels.show()
