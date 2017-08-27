@@ -75,3 +75,10 @@ class AudioMixer(Thread):
         self.next_ambient()
         for i in range(0, len(self.sound_chans)):
             self.next_sound(channel = i)
+            
+class Mute(AudioMixer):
+    def __init__(self):
+        Thread.__init__(self, target = self.mix)
+        
+    def mix(self):
+        pass

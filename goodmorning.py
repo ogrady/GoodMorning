@@ -33,7 +33,7 @@ class GoodMorning(object):
         pygame.mixer.pre_init(frequency = 44100, size = -16, channels = 3)
         pygame.init()
         pygame.display.set_mode((0,0),pygame.FULLSCREEN)
-        self.am = audio.AudioMixer(sound_dir = "birds", ambient_dir = "ambient")
+        self.am = audio.Mute() #audio.AudioMixer(sound_dir = "birds", ambient_dir = "ambient")
         dimensions = (0,0)
         dimensions = (400,200)
         disp = pygame.display.set_mode(dimensions,0,32)

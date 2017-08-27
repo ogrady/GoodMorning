@@ -94,14 +94,12 @@ class Sunrise(ColourTransition):
             )
 
 class LEDProto(Sunrise):
-    
-    
-    def __init__(self, led_count = 10):
+    def __init__(self, led_count = 20):
         import pygame  
         
         ColourTransition.__init__(self, display = None)
         # pygame.display.set_mode((0,0),pygame.FULLSCREEN)
-        dimensions = (400,200)
+        dimensions = (100,250)
         self.display = pygame.display.set_mode(dimensions,0,32)
         self.leds = [(0,0,0)] * led_count
         
