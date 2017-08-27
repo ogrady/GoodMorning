@@ -83,8 +83,8 @@ class ColourTransition(Thread):
             time.sleep(self.sleep)  
 
 class Sunrise(ColourTransition):
-    def __init__(self, gui):
-        ColourTransition.__init__(self, gui
+    def __init__(self, display):
+        ColourTransition.__init__(self, display
             , rd = lambda x:7
             , gd = lambda x:2
             , bd = lambda x:2
@@ -94,26 +94,41 @@ class Sunrise(ColourTransition):
             )
 
 class LEDProto(Sunrise):
-    def __init__(self, led_count = 20):
+    LED_size = 10
+    LED_space = 5
+    
+    def __init__(self, led_count = 100):
         import pygame  
         
-        ColourTransition.__init__(self, display = None)
+        Sunrise.__init__(self, display = None)
         # pygame.display.set_mode((0,0),pygame.FULLSCREEN)
-        dimensions = (100,250)
+        dimensions = (LEDProto.LED_size, 20 + led_count * LEDProto.LED_size)
         self.display = pygame.display.set_mode(dimensions,0,32)
         self.leds = [(0,0,0)] * led_count
         
     def set(self, index, r, g, b):
         self.leds[index] = (r,g,b)
         
+    def next(self):
+        r,g,b = self.rgb
+        
+        r = min(self.rmax,(r+self.rd(r)))
+        g = min(self.gmax,(g+self.gd(g)))
+        b = min(self.bmax,(b+self.bd(b)))
+        for i in range(len(self.leds)):
+            self.set(i,r,g,b)
+        self.rgb = (r,g,b)
+        
     def show(self):
         import pygame 
         
-        self.display.fill((255,255,255))
+        self.display.fill((0,0,0))
         for i in range(len(self.leds)):
+            s = LEDProto.LED_size
             pygame.draw.ellipse(
                 self.display,
                 self.leds[i],
-                pygame.Rect(50, 10 * i, 10, 10),
-                1
+                pygame.Rect(0, s * i + LEDProto.LED_space * i, s, s),
+                0
             )
+            print(self.leds[i])
