@@ -1,5 +1,9 @@
 from threading import Thread
 import time
+import os
+import pygame
+import Adafruit_WS2801 as Strip
+import Adafruit_GPIO.SPI as SPI
 
 '''
 Display components for controlling
@@ -139,14 +143,14 @@ class LEDProto(Sunrise):
             )
 
 class LED(Sunrise):
-    import Adafruit_WS2801 as Strip
-    import Adafruit_GPIO.SPI as SPI
-    
+   
     def __init__(self, led_count = 32, spi_port = 0, spi_device = 0):
         import RPi.GPIO as GPIO # must remain in constructor to only trigger error upon instantiating!
         
         Sunrise.__init__(self, display = None)
-        self.pixels = LED.Strip.WS2801Pixels(led_count, spi=LED.SPI.SpiDev(spi_port, spi_device), gpio=GPIO)
+        os.environ['DFL_VIDEODRIVER'] = 'dummy'
+        pygame.display.init()
+        self.pixels = Strip.WS2801Pixels(led_count, spi=SPI.SpiDev(spi_port, spi_device), gpio=GPIO)
         self.pixels.clear()
         self.pixels.show()
     
@@ -157,7 +161,7 @@ class LED(Sunrise):
         g = min(self.gmax,(g+self.gd(g)))
         b = min(self.bmax,(b+self.bd(b)))
         for i in range(self.pixels.count()):
-            self.pixels.set_pixel(i, LED.Strip.RGB_to_color(b,g,r))
+            self.pixels.set_pixel(i, Strip.RGB_to_color(b,g,r))
         self.rgb = (r,g,b)
         
     def show(self):

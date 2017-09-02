@@ -35,3 +35,4 @@ class Event(object):
     allowed to create custom events in a certain range. Screw them.
     '''
     SOUND_ENDED = pygame.locals.USEREVENT + 1
+    KEYSTROKE = pygame.locals.USEREVENT + 2

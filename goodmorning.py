@@ -23,6 +23,7 @@ import pygame
 import audio
 import display
 import util
+import keyboard
 
 import sys
 import getopt
@@ -34,16 +35,21 @@ class GoodMorning(object):
     
     def quit(self):
         self.trans.stop()
+        self.keyboard.stop()
         pygame.quit()
     
     def __init__(self, t_type):
         pygame.mixer.pre_init(frequency = 44100, size = -16, channels = 3)
         pygame.init()
         self.am = audio.Mute() #audio.AudioMixer(sound_dir = "birds", ambient_dir = "ambient")
+        self.keyboard = keyboard.DummyKeyboard()
         dimensions = (0,0)
         dimensions = (400,200)
         if t_type == GoodMorning.T_LED:
             self.trans = display.LED()
+            self.keyboard = keyboard.RawInputWrapper()
+            self.keyboard.append(PygameKeyboardEventGenerator())
+            self.keyboard.start()
         elif t_type == GoodMorning.T_LED_PROTO:
             self.trans = display.LEDProto()
         elif t_type == GoodMorning.T_SUNRISE:
@@ -64,9 +70,12 @@ class GoodMorning(object):
         while running:
             try:
                 for e in pygame.event.get():
+                    print(e)
                     if e.type == pygame.QUIT:
                         running = False
                     if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
+                        running = False
+                    if e.type == util.Event.KEYSTROKE and e.message == 'q':
                         running = False
                     elif e.type >= util.Event.SOUND_ENDED and e.type <= util.Event.SOUND_ENDED + len(self.am.sound_chans):
                         self.am.next_sound(e.type - util.Event.SOUND_ENDED)
@@ -81,6 +90,8 @@ class GoodMorning(object):
         self.quit()  
 
 def main(argv):
+    
+    import keyboard
     opts, args = getopt.getopt(argv,"hd:x:")
     
     for opt, arg in opts:
@@ -98,6 +109,8 @@ def main(argv):
     s.remove_alarm(0)
     s.start()
     """
+
+
 
 if __name__ == "__main__":
    main(sys.argv[1:])
