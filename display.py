@@ -157,7 +157,7 @@ class LED(Sunrise):
         g = min(self.gmax,(g+self.gd(g)))
         b = min(self.bmax,(b+self.bd(b)))
         for i in range(self.pixels.count()):
-            self.pixels.set_pixel(i, LED.Strip.RGB_to_color(r,g,b))
+            self.pixels.set_pixel(i, LED.Strip.RGB_to_color(b,g,r))
         self.rgb = (r,g,b)
         
     def show(self):
