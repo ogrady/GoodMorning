@@ -81,12 +81,13 @@ class GoodMorning(object):
                         self.am.next_sound(e.type - util.Event.SOUND_ENDED)
                     else:
                         pass
+                pygame.display.update()
             except:
                 # make sure the loop keeps running even if pygame errors out!
                 # Errors may occur due to not having any actualy display.
                 # But that would skip past self.quit()
                 pass 
-            pygame.display.update()
+            
         self.quit()  
 
 def main(argv):
