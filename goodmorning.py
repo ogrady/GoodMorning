@@ -62,15 +62,21 @@ class GoodMorning(object):
 
         running = True
         while running:
-            for e in pygame.event.get():
-                if e.type == pygame.QUIT:
-                    running = False
-                if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
-                    running = False
-                elif e.type >= util.Event.SOUND_ENDED and e.type <= util.Event.SOUND_ENDED + len(self.am.sound_chans):
-                    self.am.next_sound(e.type - util.Event.SOUND_ENDED)
-                else:
-                    pass
+            try:
+                for e in pygame.event.get():
+                    if e.type == pygame.QUIT:
+                        running = False
+                    if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
+                        running = False
+                    elif e.type >= util.Event.SOUND_ENDED and e.type <= util.Event.SOUND_ENDED + len(self.am.sound_chans):
+                        self.am.next_sound(e.type - util.Event.SOUND_ENDED)
+                    else:
+                        pass
+            except:
+                # make sure the loop keeps running even if pygame errors out!
+                # Errors may occur due to not having any actualy display.
+                # But that would skip past self.quit()
+                pass 
             pygame.display.update()
         self.quit()  
 
