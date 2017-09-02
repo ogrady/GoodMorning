@@ -148,7 +148,7 @@ class LED(Sunrise):
         import RPi.GPIO as GPIO # must remain in constructor to only trigger error upon instantiating!
         
         Sunrise.__init__(self, display = None)
-        os.environ['DFL_VIDEODRIVER'] = 'dummy'
+        os.environ['SDL_VIDEODRIVER'] = 'dummy'
         pygame.display.init()
         self.pixels = Strip.WS2801Pixels(led_count, spi=SPI.SpiDev(spi_port, spi_device), gpio=GPIO)
         self.pixels.clear()
