@@ -48,7 +48,7 @@ class GoodMorning(object):
         if t_type == GoodMorning.T_LED:
             self.trans = display.LED()
             self.keyboard = keyboard.RawInputWrapper()
-            self.keyboard.listeners.append(PygameKeyboardEventGenerator())
+            self.keyboard.listeners.append(keyboard.PygameKeyboardEventGenerator())
             self.keyboard.start()
         elif t_type == GoodMorning.T_LED_PROTO:
             self.trans = display.LEDProto()
