@@ -29,30 +29,34 @@ import sys
 import getopt
 
 class GoodMorning(object):
-    T_LED = 1
-    T_LED_PROTO = 2
-    T_SUNRISE = 3
+    DT_LED = 11
+    DT_LED_PROTO = 12
+    DT_SUNRISE = 13
+    
+    AT_MIXER = 21
+    AT_MUTE = 22
     
     def quit(self):
         self.trans.stop()
         self.keyboard.stop()
         pygame.quit()
     
-    def __init__(self, t_type):
+    def __init__(self, display_type, audio_type):
         pygame.mixer.pre_init(frequency = 44100, size = -16, channels = 3)
         pygame.init()
-        self.am = audio.Mute() #audio.AudioMixer(sound_dir = "birds", ambient_dir = "ambient")
         self.keyboard = keyboard.DummyKeyboard()
         dimensions = (0,0)
         dimensions = (400,200)
-        if t_type == GoodMorning.T_LED:
+        
+        # Display init
+        if display_type == GoodMorning.DT_LED:
             self.trans = display.LED()
             self.keyboard = keyboard.RawInputWrapper()
             self.keyboard.listeners.append(keyboard.PygameKeyboardEventGenerator())
             self.keyboard.start()
-        elif t_type == GoodMorning.T_LED_PROTO:
+        elif display_type == GoodMorning.DT_LED_PROTO:
             self.trans = display.LEDProto()
-        elif t_type == GoodMorning.T_SUNRISE:
+        elif display_type == GoodMorning.DT_SUNRISE:
             pygame.display.set_mode((0,0),pygame.FULLSCREEN)
             disp = pygame.display.set_mode(dimensions,0,32)
             # enabling the following line is crucial for having a proper visual experience
@@ -60,7 +64,15 @@ class GoodMorning(object):
             #pygame.display.toggle_fullscreen() 
             self.trans = display.Sunrise(disp)
         else:
-            raise util.GoodMorningException('Unknown display transition "%s"' % (str(t_type)))
+            raise util.GoodMorningException('Unknown display transition "%s"' % (str(display_type)))
+    
+        # Audio init
+        if audio_type == GoodMorning.AT_MIXER:
+            self.am = audio.AudioMixer(sound_dir = "birds", ambient_dir = "ambient")
+        elif audio_type == GoodMorning.AT_MUTE:
+            audio.Mute()
+        else:
+            raise util.GoodMorningException('Unknown audio mixer "%s"' % (str(audio_type)))
         
     def start(self):
         self.trans.start()
@@ -70,7 +82,7 @@ class GoodMorning(object):
         while running:
             try:
                 for e in pygame.event.get():
-                    print(e)
+                    # print(e)
                     if e.type == pygame.QUIT:
                         running = False
                     if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
@@ -93,14 +105,17 @@ class GoodMorning(object):
 def main(argv):
     
     import keyboard
-    opts, args = getopt.getopt(argv,"hd:x:")
+    opts, args = getopt.getopt(argv,"hd:a:")
     
     for opt, arg in opts:
         if opt == '-d':
-            d = {'led': GoodMorning.T_LED,
-                 'pled': GoodMorning.T_LED_PROTO,
-                 'sun': GoodMorning.T_SUNRISE}[arg]
-    GoodMorning(d).start()
+            d = {'led': GoodMorning.DT_LED,
+                 'pled': GoodMorning.DT_LED_PROTO,
+                 'sun': GoodMorning.DT_SUNRISE}[arg]
+        if opt == '-a':
+            a = {'mix': GoodMorning.AT_MIXER,
+                 'mute': GoodMorning.AT_MUTE}[arg]
+    GoodMorning(d,a).start()
     """s = Scheduler()
     a1 = Alarm(21,21)
     s.add_alarm(a1)
