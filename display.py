@@ -80,7 +80,15 @@ class ColourTransition(Thread):
         while self.running:
             self.next()
             self.show()
-            time.sleep(self.sleep)  
+            time.sleep(self.sleep)
+        self.shutdown()
+        
+    def shutdown(self):
+        '''
+        Called when transit() ends.
+        Cleanup should happen here.
+        '''
+        pass
 
 class Sunrise(ColourTransition):
     def __init__(self, display):
@@ -154,3 +162,6 @@ class LED(Sunrise):
         
     def show(self):
         self.pixels.show()
+        
+    def shutdown(self):
+        self.pixels.clear()
