@@ -39,7 +39,6 @@ class GoodMorning(object):
     def __init__(self, t_type):
         pygame.mixer.pre_init(frequency = 44100, size = -16, channels = 3)
         pygame.init()
-        pygame.display.set_mode((0,0),pygame.FULLSCREEN)
         self.am = audio.Mute() #audio.AudioMixer(sound_dir = "birds", ambient_dir = "ambient")
         dimensions = (0,0)
         dimensions = (400,200)
@@ -48,6 +47,7 @@ class GoodMorning(object):
         elif t_type == GoodMorning.T_LED_PROTO:
             self.trans = display.LEDProto()
         elif t_type == GoodMorning.T_SUNRISE:
+            pygame.display.set_mode((0,0),pygame.FULLSCREEN)
             disp = pygame.display.set_mode(dimensions,0,32)
             # enabling the following line is crucial for having a proper visual experience
             # but also ruins your day since there is no way to kill the program yet
