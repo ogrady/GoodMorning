@@ -165,3 +165,4 @@ class LED(Sunrise):
         
     def shutdown(self):
         self.pixels.clear()
+        self.pixels.show()

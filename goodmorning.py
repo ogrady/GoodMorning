@@ -33,7 +33,7 @@ class GoodMorning(object):
     T_SUNRISE = 3
     
     def quit(self):
-        trans.stop()
+        self.trans.stop()
         pygame.quit()
     
     def __init__(self, t_type):
@@ -65,12 +65,14 @@ class GoodMorning(object):
             for e in pygame.event.get():
                 if e.type == pygame.QUIT:
                     running = False
+                if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
+                    running = False
                 elif e.type >= util.Event.SOUND_ENDED and e.type <= util.Event.SOUND_ENDED + len(self.am.sound_chans):
                     self.am.next_sound(e.type - util.Event.SOUND_ENDED)
                 else:
                     pass
             pygame.display.update()
-        quit()  
+        self.quit()  
 
 def main(argv):
     opts, args = getopt.getopt(argv,"hd:x:")
