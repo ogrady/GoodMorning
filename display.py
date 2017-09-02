@@ -133,17 +133,18 @@ class LEDProto(Sunrise):
 class LED(Sunrise):
     # Simple demo of of the WS2801/SPI-like addressable RGB LED lights.
     import time
-    import RPi.GPIO as GPIO
+    import warnings
      
     # Import the WS2801 module.
     import Adafruit_WS2801 as Strip
     import Adafruit_GPIO.SPI as SPI
     
-    def __init__(self, led_count = 100):
+    def __init__(self, led_count = 32, spi_port = 0, spi_device = 0):
+        import RPi.GPIO as GPIO
         Sunrise.__init__(self, display = None)
-        # self.leds = [(0,0,0)] * led_count
-        pixels.clear()
-        pixels.show()
+        self.pixels = Strip.WS2801Pixels(led_count, spi=SPI.SpiDev(spi_port, spi_device), gpio=GPIO)
+        self.pixels.clear()
+        self.pixels.show()
     
     def next(self):
         r,g,b = self.rgb
@@ -151,9 +152,9 @@ class LED(Sunrise):
         r = min(self.rmax,(r+self.rd(r)))
         g = min(self.gmax,(g+self.gd(g)))
         b = min(self.bmax,(b+self.bd(b)))
-        for i in range(pixels.count()):
-            pixels.set_pixel(i, (r,g,b))
+        for i in range(self.pixels.count()):
+            self.pixels.set_pixel(i, (r,g,b))
         self.rgb = (r,g,b)
         
     def show(self):
-        pixels.show()
+        self.pixels.show()
