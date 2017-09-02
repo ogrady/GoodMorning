@@ -18,6 +18,7 @@ class AudioException(GoodMorningException):
         
 class DisplayException(GoodMorningException):
     def __init__(self, message):
+        
         GoodMorningException.__init__(self, message)        
 class AlarmException(GoodMorningException):
     def __init__(self, message):

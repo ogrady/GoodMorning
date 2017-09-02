@@ -24,23 +24,37 @@ import audio
 import display
 import util
 
+import sys
+import getopt
+
 class GoodMorning(object):
+    T_LED = 1
+    T_LED_PROTO = 2
+    T_SUNRISE = 3
+    
     def quit(self):
         trans.stop()
         pygame.quit()
     
-    def __init__(self):
+    def __init__(self, t_type):
         pygame.mixer.pre_init(frequency = 44100, size = -16, channels = 3)
         pygame.init()
         pygame.display.set_mode((0,0),pygame.FULLSCREEN)
         self.am = audio.Mute() #audio.AudioMixer(sound_dir = "birds", ambient_dir = "ambient")
         dimensions = (0,0)
         dimensions = (400,200)
-        disp = pygame.display.set_mode(dimensions,0,32)
-        # enabling the following line is crucial for having a proper visual experience
-        # but also ruins your day since there is no way to kill the program yet
-        #pygame.display.toggle_fullscreen() 
-        self.trans = display.LEDProto() #display.Sunrise(disp)
+        if t_type == GoodMorning.T_LED:
+            self.trans = display.LED()
+        elif t_type == GoodMorning.T_LED_PROTO:
+            self.trans = display.LEDProto()
+        elif t_type == GoodMorning.T_SUNRISE:
+            disp = pygame.display.set_mode(dimensions,0,32)
+            # enabling the following line is crucial for having a proper visual experience
+            # but also ruins your day since there is no way to kill the program yet
+            #pygame.display.toggle_fullscreen() 
+            self.trans = display.Sunrise(disp)
+        else:
+            raise util.GoodMorningException('Unknown display transition "%s"' % (str(t_type)))
         
     def start(self):
         self.trans.start()
@@ -58,8 +72,15 @@ class GoodMorning(object):
             pygame.display.update()
         quit()  
 
-def main():
-    GoodMorning().start()
+def main(argv):
+    opts, args = getopt.getopt(argv,"hd:x:")
+    
+    for opt, arg in opts:
+        if opt == '-d':
+            d = {'led': GoodMorning.T_LED,
+                 'pled': GoodMorning.T_LED_PROTO,
+                 'sun': GoodMorning.T_SUNRISE}[arg]
+    GoodMorning(d).start()
     """s = Scheduler()
     a1 = Alarm(21,21)
     s.add_alarm(a1)
@@ -70,4 +91,5 @@ def main():
     s.start()
     """
 
-main()
+if __name__ == "__main__":
+   main(sys.argv[1:])
