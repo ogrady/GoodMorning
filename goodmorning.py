@@ -1,13 +1,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-This module is currently horribly overloaded
-and should be split into:
-
-    * Display
-    * Audio
-    * Error
-    * Logic
+Main module.
 
 version: 1.0
 author: Daniel O'Grady  
@@ -16,7 +10,7 @@ author: Daniel O'Grady
 from threading import Thread
 import time
 import random
-import schedule
+import alarm
 
 import pygame
 
@@ -24,6 +18,7 @@ import audio
 import display
 import util
 import keyboard
+
 
 import sys
 import getopt
@@ -129,4 +124,7 @@ def main(argv):
 
 
 if __name__ == "__main__":
-   main(sys.argv[1:])
+    #s = alarm.read_alarms('alarms.json')
+    #s.start()
+    #pass
+    main(sys.argv[1:])

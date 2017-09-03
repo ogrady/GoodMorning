@@ -52,8 +52,10 @@ The expected format is:
   ]
 ```
 
-### Running the App
+## Running the App
 Run the app with `python goodmorning.py`. The main method accepts (expects!) two parameters:
 
 1. `-d`: display type. Accepts `led` (LED strip), `pled` (pygame prototype), `sun` (sunrise in game window)
 2. `-a`: audio mixer. Accepts `mix` (regular mixer as descibed above), `mute` (no audio)
+
+Make sure that all files and directories as mentioned in this readme are present and accessible!
