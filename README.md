@@ -36,7 +36,8 @@ Both are to contain sounds in `.ogg` format. Three channels are being used:
 one for playing ambient sounds, two more for playing bird sounds.
 Sounds are selected and played randomly.
 
-### alarms.json
+### Alarm
+#### alarms.json
 The app expects a file `alarm.json` to be located in the main directory of the app.
 The expected format is:
 
@@ -50,3 +51,9 @@ The expected format is:
     active: .., (boolean: whether to ring, OPTIONAL defaults to true)
   ]
 ```
+
+### Running the App
+Run the app with `python goodmorning.py`. The main method accepts (expects!) two parameters:
+
+1. `-d`: display type. Accepts `led` (LED strip), `pled` (pygame prototype), `sun` (sunrise in game window)
+2. `-a`: audio mixer. Accepts `mix` (regular mixer as descibed above), `mute` (no audio)
