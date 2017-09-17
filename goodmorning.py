@@ -18,6 +18,7 @@ import audio
 import display
 import util
 import keyboard
+import config
 
 
 import sys
@@ -124,7 +125,8 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    #s = alarm.read_alarms('alarms.json')
+    #s = config.read_alarms('config.json')
     #s.start()
     #pass
-    main(sys.argv[1:])
+    #main(sys.argv[1:])
+    print(config.read_sceneries('config.json'))

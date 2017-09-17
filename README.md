@@ -38,18 +38,45 @@ Sounds are selected and played randomly.
 
 ### Alarm
 #### alarms.json
-The app expects a file `alarm.json` to be located in the main directory of the app.
+The app expects a file `config.json` to be located in the main directory of the app.
 The expected format is:
 
 ```
-  alarms: [
+  sceneries: {
+    name: { , (string: name of the scenery, must be unique, can be referenced in the alarms sections)
+        files: [..] ([string]: paths to read files from. See (1) below! 
+                    
+    }
+  },
+  alarms: { (array of the following)
     name: .., (string: description OPTIONAL)
     hour: .., (int: hour at which to ring)
     minute: .., (int: minute at which to ring, OPTIONAL default 0)
     second: .., (int: second at which to ring, OPTIONAL default 0)
     days: [..], ([string]: 'mon',..,'sun', OPTIONAL default []. results in ringing every day)
+    scenery: .., (string: any name of a scenery defined above)
     active: .., (boolean: whether to ring, OPTIONAL defaults to true)
-  ]
+  }
+```
+
+(1): Each entry in this array is the input for one audio channel.
+They can be arrays themselves. The entries can either be paths to
+sound files or directories. Giving directories will walk them recursively
+and draw all files from them again.
+This section should therefore contain as many sections as audio channels.
+Everything else is undefined behaviour. See this commented example:
+
+```
+    "sceneries":
+    {
+        "scene1":
+        {
+            "files": [
+                "dir1/", # chan1: all files in dir1/
+                "rain.ogg", # chan2: just rain.ogg
+                ["dir2/", "rain.ogg"] # chan3: all files in dir2/ plus rain.ogg
+        }
+    },
 ```
 
 ## Running the App

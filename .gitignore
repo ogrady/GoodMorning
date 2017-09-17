@@ -2,7 +2,7 @@
 *.sublime-project
 
 # Config
-alarms.json
+config.json
 
 # Audio files
 *.ogg

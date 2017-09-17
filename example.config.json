@@ -1,17 +1,30 @@
 {
-    "alarms": [
+    "sceneries":
+    {
+        "scene1":
+        {
+            "files": [
+                "dir1/",
+                "rain.ogg", 
+                ["dir2/", "rain.ogg"] 
+        }
+    },
+    "alarms":
+    [
         {
         "name": "work",
         "hour": 6,
         "minute": 15,
         "second": 0,
         "days": ["mon","tue","wed","thu","fri"],
+        "scenery": "scene1",
         "active": true
         },
         {
         "name": "every day bedtime",
         "hour": 22,
         "days": [],
+        "scenery": "scene1",
         "active": true
         }
     ]

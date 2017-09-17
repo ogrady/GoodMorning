@@ -1,6 +1,5 @@
 import schedule
 import time 
-import json
 import functools
 import util
 from threading import Thread
@@ -12,39 +11,6 @@ events in a cron-like fashion.
 version: 1.0
 author: Daniel O'Grady  
 '''
-def read_alarms(file, scheduler = None):
-    '''
-    file: json file from which to read the alarms. They are expected to
-          be in the format: 
-          alarms: [
-            name: .., (description OPTIONAL)
-            hour: .., (hour)
-            minute: .., (minute OPTIONAL)
-            second: .., (second OPTIONAL)
-            days: [..], (array of 'mon',..'sun' OPTIONAL, empty results in ringing every day)
-            active: .., (boolean whether to ring OPTIONAL, defaults to true)
-          ]
-    scheduler: scheduler into which to load the alarms. If no scheduler
-               is passed a new one will be created
-    returns: the scheduler into which the alarms have been read
-    '''
-    if not scheduler:
-        scheduler = Scheduler()
-    with open(file) as fd:
-        data = json.load(fd)
-        for alarm_json in data['alarms']:
-            # FIXME: typecheck!
-            active = alarm_json['active'] if 'active' in alarm_json else True
-            if active:
-                name = alarm_json['name'] if 'name' in alarm_json else ''
-                hour = alarm_json['hour'] # mandatory!
-                minute = alarm_json['minute'] if 'minute' in alarm_json else 0
-                second = alarm_json['second'] if 'second' in alarm_json else 0
-                days = alarm_json['days'] if 'days' in alarm_json else []
-                alarm = Alarm(name = name, hour = hour, minute = minute, second = second, days = days)
-                scheduler.add_alarm(alarm)
-    return scheduler
-
 class Scheduler(Thread):
     @property
     def jobs(self):
@@ -180,7 +146,9 @@ class Alarm(object):
         self.minute = minute
         self.second = second
         self.days = days
-
-# FIXME: remove
-def foo():
-        print("working")
+        
+class Scenery(object):
+    def __init__(self, sounds):
+        self.channels = []
+        for s in sounds:
+            self.channels.append(s)
