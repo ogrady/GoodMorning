@@ -68,7 +68,8 @@ def read_sceneries(file):
                     group = [group]
                 for f in group:
                     if os.path.isdir(f):
-                        sound_files.extend(list(os.walk(f))[0][2]) # 0: root, 1: subdirs, 2: files
+                        files = list(os.walk(f))[0]
+                        sound_files.extend(map(lambda s: "".join((files[0], s)), files[2])) # 0: root, 1: subdirs, 2: files
                     else:
                         sound_files.append(f)
                 channels.append(sound_files)

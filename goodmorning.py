@@ -64,7 +64,8 @@ class GoodMorning(object):
     
         # Audio init
         if audio_type == GoodMorning.AT_MIXER:
-            self.am = audio.AudioMixer(sound_dir = "birds", ambient_dir = "ambient")
+            sounds = list(config.read_sceneries("config.json").items())[0][1].channels
+            self.am = audio.AudioMixer(sound_groups = sounds)
         elif audio_type == GoodMorning.AT_MUTE:
             audio.Mute()
         else:
@@ -125,8 +126,8 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    s = config.read_alarms('config.json')
-    s.start()
+    #s = config.read_alarms('config.json')
+    #s.start()
     #pass
-    #main(sys.argv[1:])
+    main(sys.argv[1:])
     #print(config.read_sceneries('config.json'))

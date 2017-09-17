@@ -63,7 +63,9 @@ The expected format is:
 They can be arrays themselves. The entries can either be paths to
 sound files or directories. Giving directories will walk them recursively
 and draw all files from them again.
-This section should therefore contain as many sections as audio channels.
+This section should therefore contain as many sections as audio channels
+and at least two. The first section will always be the ambient channel.
+All others will be sound effects.
 Everything else is undefined behaviour. See this commented example:
 
 ```

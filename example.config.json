@@ -4,7 +4,7 @@
         "scene1":
         {
             "files": [
-                "dir1/",
+                "ambients/",
                 "rain.ogg", 
                 ["dir2/", "rain.ogg"] 
         }
