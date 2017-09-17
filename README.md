@@ -22,7 +22,7 @@ GoodMorning currently consists of several main components:
 1. *display:* several classes to give some visual output, especially colour transistions.
 With my current setup I am using the LED display to control a WS2801 strip. But it also contains classes to control a display.
 
-2. *audio:* a mixer which feeds random sounds from dictionaries into an arbitrary number of audio channels
+2. *audio:* a mixer which feeds random sounds from directories into an arbitrary number of audio channels
 and with that creates a somewhat "natural" audio experience.
 
 3. *alarm:* a scheduler which reads alarm times from a JSON file and starts an action at that time.
