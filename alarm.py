@@ -136,19 +136,25 @@ class Alarm(object):
         print("RING RING")
         print(self.string)
 
-    def __init__(self, hour, minute = 0, second = 0, days = [], name = ''):
+    def __init__(self, hour, minute = 0, second = 0, days = [], name = '', scenery = None):
         '''
         hour: hour on which to run the alarm
         minute: minute on which to run the alarm
+        second: second on which to run the alarm
+        days: days on which to run the alarm
+        name: name of the alarm
+        scenery: Scenery object
         '''
         self.name = name
         self.hour = hour
         self.minute = minute
         self.second = second
         self.days = days
+        self.scenery = scenery
         
 class Scenery(object):
-    def __init__(self, sounds):
+    def __init__(self, name, sounds):
+        self.name = name
         self.channels = []
         for s in sounds:
             self.channels.append(s)

@@ -125,8 +125,8 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    #s = config.read_alarms('config.json')
-    #s.start()
+    s = config.read_alarms('config.json')
+    s.start()
     #pass
     #main(sys.argv[1:])
-    print(config.read_sceneries('config.json'))
+    #print(config.read_sceneries('config.json'))
