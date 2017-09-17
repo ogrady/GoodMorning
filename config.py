@@ -7,7 +7,7 @@ author: Daniel O'Grady
 import json
 import os
 import util
-from alarm import Scheduler, Alarm, Scenery
+from alarm import Scheduler, SceneryAlarm, Scenery
 
 def read_alarms(file, scheduler = None):
     '''
@@ -43,7 +43,7 @@ def read_alarms(file, scheduler = None):
                 if not scenery_key in sceneries:
                     raise util.AlarmException("Invalid scenery key: '%s' for alarm '%s'" % (scenery_key, name))
                 scenery = sceneries[scenery_key]
-                alarm = Alarm(name = name, hour = hour, minute = minute, second = second, days = days, scenery = scenery)
+                alarm = SceneryAlarm(name = name, hour = hour, minute = minute, second = second, days = days, scenery = scenery)
                 scheduler.add_alarm(alarm)
     return scheduler
 

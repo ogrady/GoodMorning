@@ -30,19 +30,14 @@ class RawInputWrapper(Thread):
     '''
     While running, this class will poll the std input every second.
     It will then attempt to read 1 character of input and distribute
-    it to every class inside the self.listeners-list.
-    Listeners are expected to have a method on_keydown(ch)
-    where ch is the one character.
-    Not having such a method will result in a warning but nothing else
-    will happen!
+    it to every class inside the listeners-list.
     '''
-    
     POLL_DELAY = 1
     def __init__(self):
         Thread.__init__(self, target = self.listen)
         fd = sys.stdin.fileno()
         self.old_settings = termios.tcgetattr(fd)
-        self.listeners = []
+        self.dispatcher = util.EventDispatcher("on_keydown")
         tty.setraw(fd)
     
     def stop(self):
@@ -55,12 +50,7 @@ class RawInputWrapper(Thread):
         while self.running:
             rlist, _, _ = select([sys.stdin], [], [], RawInputWrapper.POLL_DELAY)
             if rlist:
-                ch = sys.stdin.read(1)
-                for l in self.listeners:
-                    try:
-                        l.on_keydown(ch)
-                    except AttributeError:
-                        warnings.warn('Class "%s" does not supply on_keydown(ch) method. Skipping silently.' % (l.__class__.__name__), RuntimeWarning)
+                self.dispatcher.dispatch(sys.stdin.read(1))
         
 class PygameKeyboardEventGenerator(object):
     def on_keydown(self, ch):

@@ -2,6 +2,7 @@ import schedule
 import time 
 import functools
 import util
+import pygame
 from threading import Thread
 
 '''
@@ -135,8 +136,14 @@ class Alarm(object):
         pass
         print("RING RING")
         print(self.string)
+        
+    def turn_off(self):
+        '''
+        Shutdown action for the rining alarm.
+        '''
+        pass
 
-    def __init__(self, hour, minute = 0, second = 0, days = [], name = '', scenery = None):
+    def __init__(self, hour, minute = 0, second = 0, days = [], name = ''):
         '''
         hour: hour on which to run the alarm
         minute: minute on which to run the alarm
@@ -152,9 +159,49 @@ class Alarm(object):
         self.days = days
         self.scenery = scenery
         
+
 class Scenery(object):
     def __init__(self, name, sounds):
         self.name = name
         self.channels = []
         for s in sounds:
             self.channels.append(s)
+            
+    def start(self):
+        self.trans.start()
+        self.am.start() # mix() instead of start()?
+
+        running = True
+        while running:
+            try:
+                for e in pygame.event.get():
+                    # print(e)
+                    if e.type == pygame.QUIT:
+                        running = False
+                    if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
+                        running = False
+                    if e.type == util.Event.KEYSTROKE and e.message == 'q':
+                        running = False
+                    elif e.type >= util.Event.SOUND_ENDED and e.type <= util.Event.SOUND_ENDED + len(self.am.sound_chans):
+                        self.am.next_sound(e.type - util.Event.SOUND_ENDED)
+                    else:
+                        pass
+                pygame.display.update()
+            except:
+                # make sure the loop keeps running even if pygame errors out!
+                # Errors may occur due to not having any actualy display.
+                # But that would skip past self.quit()
+                pass 
+            
+        self.quit()  
+
+class SceneryAlarm():
+    def __init__(self, hour, minute = 0, second = 0, days = [], name = '', scenery = None):
+        Alarm.__init__(self, hour = hour, minute = minute, second = second, days = days, name = name)
+        self.scenery = scenery
+        
+    def ring(self):
+        running = True
+        while running:
+            pass
+            
