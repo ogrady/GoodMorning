@@ -3,7 +3,9 @@ import time
 import functools
 import util
 import pygame
-from threading import Thread
+
+import display
+import audio
 
 '''
 Everything related to scheduling
@@ -12,20 +14,23 @@ events in a cron-like fashion.
 version: 1.0
 author: Daniel O'Grady  
 '''
-class Scheduler(Thread):
+class Scheduler(object):
     @property
     def jobs(self):
         return self._scheduler.jobs
 
-    def __init__(self, delay = 60):
+    # FIXME: reset default sleep to 60
+    def __init__(self, sleep = 1):
         # sleep: interval in seconds in which the Scheduler checks for pending jobs
-        Thread.__init__(self, target = self.run)
         self._scheduler = schedule.Scheduler()
-        self.running = False
-        self.delay = delay
+        self.sleep = sleep
+        self.elapsed = 0
+        
+    def start(self):
+        util.TimeTicker.instance.dispatcher.add_listener(self)
 
     def stop(self):
-        self.running = False
+        util.TimeTicker.instance.dispatcher.remove_listener(self)
 
     def add_alarm(self, alarm):
         '''
@@ -59,11 +64,11 @@ class Scheduler(Thread):
             raise SchedulerException("Invalid index %d" % (index))
         self._scheduler.cancel_job(self._scheduler.jobs[index])
 
-    def run(self):
-        self.running = True
-        while self.running:
+    def on_tick(self, elapsed):
+        self.elapsed += elapsed
+        if self.elapsed > self.sleep:
             self._scheduler.run_pending()
-            time.sleep(self.delay)
+            self.elapsed = 0
 
 class Alarm(object):
     MONDAY = 'mon'
@@ -157,51 +162,47 @@ class Alarm(object):
         self.minute = minute
         self.second = second
         self.days = days
-        self.scenery = scenery
-        
 
 class Scenery(object):
-    def __init__(self, name, sounds):
+    def __init__(self, name, sounds, rd, gd, bd, rmax, gmax, bmax, sleep):
         self.name = name
-        self.channels = []
-        for s in sounds:
-            self.channels.append(s)
+        self.sleep = sleep
+        self.elapsed = 0
+        # FIXME: remove
+        if util.DEVELOPMENT:
+            self.display = display.LEDProto(rd = rd, gd = gd, bd = bd,
+                                               rmax = rmax, gmax = gmax, bmax = bmax,
+                                               sleep = sleep, led_count = 100)
+        else:
+            self.display = display.LED(rd = rd, gd = gd, bd = bd,
+                                          rmax = rmax, gmax = gmax, bmax = bmax,
+                                          sleep = sleep)
+        self.audiomixer = audio.AudioMixer(sound_groups = sounds)
             
     def start(self):
-        self.trans.start()
-        self.am.start() # mix() instead of start()?
+        util.PygameEventListener.instance.dispatcher.add_listener(self)
+        self.display.start()
+        self.audiomixer.start() # mix() instead of start()?
+        
+    def stop(self):
+        util.PygameEventListener.instance.dispatcher.remove_listener(self)
+        self.display.stop()
+        self.audiomixer.stop()
+        
+    def on_pygame_event(self, e):
+        if e.type >= util.Event.SOUND_ENDED and e.type <= util.Event.SOUND_ENDED + len(self.audiomixer.sound_chans):
+                self.audiomixer.next_sound(e.type - util.Event.SOUND_ENDED)
 
-        running = True
-        while running:
-            try:
-                for e in pygame.event.get():
-                    # print(e)
-                    if e.type == pygame.QUIT:
-                        running = False
-                    if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
-                        running = False
-                    if e.type == util.Event.KEYSTROKE and e.message == 'q':
-                        running = False
-                    elif e.type >= util.Event.SOUND_ENDED and e.type <= util.Event.SOUND_ENDED + len(self.am.sound_chans):
-                        self.am.next_sound(e.type - util.Event.SOUND_ENDED)
-                    else:
-                        pass
-                pygame.display.update()
-            except:
-                # make sure the loop keeps running even if pygame errors out!
-                # Errors may occur due to not having any actualy display.
-                # But that would skip past self.quit()
-                pass 
-            
-        self.quit()  
-
-class SceneryAlarm():
+class SceneryAlarm(Alarm):
+    # FIXME: add max seconds to config after which alarm ends
     def __init__(self, hour, minute = 0, second = 0, days = [], name = '', scenery = None):
         Alarm.__init__(self, hour = hour, minute = minute, second = second, days = days, name = name)
         self.scenery = scenery
         
     def ring(self):
-        running = True
-        while running:
-            pass
+        Alarm.ring(self)
+        self.scenery.start()
             
+    def turn_off(self):
+        Alarm.turn_off(self)
+        self.scenery.stop()

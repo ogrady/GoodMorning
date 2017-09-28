@@ -52,14 +52,20 @@ def read_sceneries(file):
     file: json file from which to read the sceneries. They are expected
           to be in the format:
           sceneries: {
-            name: ..: (description)
+            [name: { (description)
                 files: [..] (array of files, see README.md)
+                rgb_deltas: [..] (rgb deltas, should be positive and not exceed 255 each)
+                rgb_max: [..] (max rgb values, shouldn't exceed 255 each)
+            }]
           }
     '''
     sceneries = {}
     with open(file) as fd:
         data = json.load(fd)
         for name, scenery_json in data['sceneries'].items():
+            rd,gd,bd = scenery_json['rgb_deltas']
+            rmax,gmax,bmax = scenery_json['rgb_max']
+            sleep = scenery_json['sleep']
             channels = []
             files = scenery_json['files']
             for group in files:
@@ -73,5 +79,5 @@ def read_sceneries(file):
                     else:
                         sound_files.append(f)
                 channels.append(sound_files)
-        sceneries[name] = Scenery(name, channels)
+        sceneries[name] = Scenery(name, channels, rd,gd,bd, rmax,gmax,bmax, sleep)
     return sceneries

@@ -10,6 +10,8 @@ version: 1.0
 author: Daniel O'Grady  
 '''
 
+DEVELOPMENT = True
+
 class GoodMorningException(Exception):
     def __init__(self, message):
         Exception.__init__(self, message)
@@ -20,8 +22,8 @@ class AudioException(GoodMorningException):
         
 class DisplayException(GoodMorningException):
     def __init__(self, message):
-        
         GoodMorningException.__init__(self, message)        
+        
 class AlarmException(GoodMorningException):
     def __init__(self, message):
         GoodMorningException.__init__(self, message)     
@@ -33,7 +35,47 @@ class SchedulerException(GoodMorningException):
 class DispatcherException(GoodMorningException):
     def __init__(self, message):
         GoodMorningException.__init__(self, message)    
+        
+class Singleton:
+    '''
+    A non-thread-safe helper class to ease implementing singletons.
+    This should be used as a decorator -- not a metaclass -- to the
+    class that should be a singleton.
 
+    The decorated class can define one `__init__` function that
+    takes only the `self` argument. Also, the decorated class cannot be
+    inherited from. Other than that, there are no restrictions that apply
+    to the decorated class.
+
+    To get the singleton instance, use the `Instance` method. Trying
+    to use `__call__` will result in a `TypeError` being raised.
+    
+    This is more or less taken from 
+    https://stackoverflow.com/a/7346105
+    '''
+
+    def __init__(self, decorated):
+        self._decorated = decorated
+
+    @property
+    def instance(self):
+        '''
+        Returns the singleton instance. Upon its first call, it creates a
+        new instance of the decorated class and calls its `__init__` method.
+        On all subsequent calls, the already created instance is returned.
+        '''
+        try:
+            return self._instance
+        except AttributeError:
+            self._instance = self._decorated()
+            return self._instance
+
+    def __call__(self):
+        raise TypeError('Singletons must be accessed through `Instance()`.')
+
+    def __instancecheck__(self, inst):
+        return isinstance(inst, self._decorated)
+        
 class Event(object):
     '''
     PyGame has this great thing where they use magic values
@@ -56,7 +98,7 @@ class EventDispatcher(object):
         
     def add_listener(self, listener):
         if not hasattr(listener, self._notify_method):
-            raise DispatcherException("Listener of type '%s' does not offer a method named '%s'", (type(listener), self._notify_method))
+            raise DispatcherException("Listener of type '%s' does not offer a method named '%s'" % (type(listener), self._notify_method))
         self._listeners.append(listener)
         
     def remove_listener(self, listener):
@@ -66,33 +108,48 @@ class EventDispatcher(object):
         for l in self._listeners:
             getattr(l, self._notify_method)(event)
 
-class PygameEventListener(Thread):
-    DELAY = 0.1
-    
+@Singleton
+class PygameEventListener(object):
     def __init__(self):
-        Thread.__init__(self, target = self.listen)
+        TimeTicker.instance.dispatcher.add_listener(self)
         self.running = False
         self.dispatcher = EventDispatcher("on_pygame_event")
         pygame.init()
         
+    def on_tick(self, elapsed):
+        try:
+            for e in pygame.event.get():
+                self.dispatcher.dispatch(e)
+        except:
+            # make sure the loop keeps running even if pygame errors out!
+            # Errors may occur due to not having any actualy display.
+            # But that would skip shutdown routines
+            # FIXME: dispatch as special event?
+            pass 
+        
+    def stop(self):
+        TimeTicker.instance.dispatcher.remove_listener(self)
+
+@Singleton
+class TimeTicker(Thread):
+    def __init__(self, delay = 0.5):
+        Thread.__init__(self, target = self.tick)
+        self.delay = delay
+        self.running = False
+        self.dispatcher = EventDispatcher("on_tick")
+        self.start()
+        
     def stop(self):
         self.running = False
         
-    def listen(self):
+    def tick(self):
         self.running = True
+        timestamp = time.time()
         while self.running:
-            try:
-                for e in pygame.event.get():
-                    self.dispatcher.dispatch(e)
-            except:
-                # make sure the loop keeps running even if pygame errors out!
-                # Errors may occur due to not having any actualy display.
-                # But that would skip shutdown routines
-                # FIXME: dispatch as special event?
-                pass 
-            time.sleep(PygameEventListener.DELAY) # not sleeping led to weird segfaults
-            
-PygameEventListenerSingleton = PygameEventListener()
+            time.sleep(self.delay)
+            now = time.time()
+            self.dispatcher.dispatch(now - timestamp)
+            timestamp = now
+
 pygame.init()
-PygameEventListenerSingleton.start()
 

@@ -5,6 +5,8 @@ import pygame
 import Adafruit_WS2801 as Strip
 import Adafruit_GPIO.SPI as SPI
 
+import util
+
 '''
 Display components for controlling
 a standard HDMI display.
@@ -13,7 +15,7 @@ version: 1.0
 author: Daniel O'Grady  
 '''
 
-class ColourTransition(Thread):
+class ColourTransition(object):
     '''
     Transists the background colour of a GUI from black to white in discrete steps.
     ''' 
@@ -27,12 +29,18 @@ class ColourTransition(Thread):
         r,g,b = map(lambda c: c if len(c) > 1 else "0%s" % (c,), rgbh)
         return "#%s%s%s" % (r,g,b)
         
+    def start(self):
+        '''
+        Starts the transition.
+        '''
+        util.TimeTicker.instance.dispatcher.add_listener(self)
+        
     def stop(self):
         '''
         Stops the run gracefully.
         If the transition is currently not running this does nothing.
         '''
-        self.running = False
+        util.TimeTicker.instance.dispatcher.remove_listener(self)
     
     def __init__(self, display, rd = lambda x:1, gd = lambda x:1, bd = lambda x:1, rmax = 255, gmax = 255, bmax = 255, sleep = 0.5, init = (0,0,0)):
         '''
@@ -45,7 +53,6 @@ class ColourTransition(Thread):
         bmax: max for blue (255 boundary not checked)
         sleep: sleep time between each step in seconds
         '''
-        Thread.__init__(self, target = self.transit)
         self.display = display
         self.init = init
         self.rgb = init
@@ -56,6 +63,7 @@ class ColourTransition(Thread):
         self.gmax = gmax
         self.bmax = bmax
         self.sleep = sleep
+        self.elapsed = 0
 
     def next(self):
         '''
@@ -74,28 +82,16 @@ class ColourTransition(Thread):
         '''
         self.display.fill(self.rgb)
         
-    def transit(self):
-        '''
-        Does all transition steps until explicitely
-        stopped via self.stop().
-        '''
-        self.running = True
-        self.rgb = self.init
-        while self.running:
+    def on_tick(self, elapsed):
+        self.elapsed += elapsed
+        if self.elapsed >= self.sleep:
             self.next()
             self.show()
-            time.sleep(self.sleep)
-        self.shutdown()
-        
-    def shutdown(self):
-        '''
-        Called when transit() ends.
-        Cleanup should happen here.
-        '''
-        pass
+            self.elapsed = 0
 
 class Sunrise(ColourTransition):
     def __init__(self, display):
+        assert False, "deprecated!"
         ColourTransition.__init__(self, display
             , rd = lambda x:7
             , gd = lambda x:2
@@ -105,14 +101,22 @@ class Sunrise(ColourTransition):
             , sleep = 0.5
             )
 
-class LEDProto(Sunrise):
+class LEDProto(ColourTransition):
     LED_size = 10
     LED_space = 5
     
     import pygame
     
-    def __init__(self, led_count = 100):
-        Sunrise.__init__(self, display = None)
+    def __init__(self, rd, gd, bd, rmax, gmax, bmax, sleep = 0.5, led_count = 100):
+        ColourTransition.__init__(self, None
+            , rd = lambda x:rd
+            , gd = lambda x:gd
+            , bd = lambda x:bd
+            , rmax = rmax
+            , gmax = gmax
+            , bmax = bmax
+            , sleep = sleep
+            )
         # pygame.display.set_mode((0,0),pygame.FULLSCREEN)
         dimensions = (LEDProto.LED_size, 20 + led_count * LEDProto.LED_size)
         self.display = LEDProto.pygame.display.set_mode(dimensions,0,32)
@@ -142,17 +146,26 @@ class LEDProto(Sunrise):
                 0
             )
 
-class LED(Sunrise):
+class LED(ColourTransition):
    
-    def __init__(self, led_count = 32, spi_port = 0, spi_device = 0):
+    def __init__(self, rd, gd, bd, rmax, gmax, bmax, sleep = 0.5, led_count = 32, spi_port = 0, spi_device = 0):
         import RPi.GPIO as GPIO # must remain in constructor to only trigger error upon instantiating!
         
-        Sunrise.__init__(self, display = None)
+        ColourTransition.__init__(self, display
+            , rd = lambda x:rd
+            , gd = lambda x:gd
+            , bd = lambda x:bd
+            , rmax = rmax
+            , gmax = gmax
+            , bmax = bmax
+            , sleep = sleep
+            )
         os.environ['SDL_VIDEODRIVER'] = 'dummy'
         pygame.display.init()
         self.pixels = Strip.WS2801Pixels(led_count, spi=SPI.SpiDev(spi_port, spi_device), gpio=GPIO)
         self.pixels.clear()
         self.pixels.show()
+        self.TimeTicker.instance.dispatcher.add_listener(self)
     
     def next(self):
         r,g,b = self.rgb
@@ -167,6 +180,7 @@ class LED(Sunrise):
     def show(self):
         self.pixels.show()
         
-    def shutdown(self):
+    def stop(self):
+        ColourTransition.stop(self)
         self.pixels.clear()
         self.pixels.show()

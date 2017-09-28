@@ -37,7 +37,7 @@ class GoodMorning(object):
         self.keyboard.stop()
         pygame.quit()
     
-    def __init__(self, display_type, audio_type):
+    def __init__(self, display_type, audio_type, config_file):
         pygame.mixer.pre_init(frequency = 44100, size = -16, channels = 3)
         pygame.init()
         self.keyboard = keyboard.DummyKeyboard()
@@ -45,6 +45,7 @@ class GoodMorning(object):
         dimensions = (400,200)
         
         # Display init
+        """
         if display_type == GoodMorning.DT_LED:
             self.trans = display.LED()
             self.keyboard = keyboard.RawInputWrapper()
@@ -70,10 +71,14 @@ class GoodMorning(object):
             audio.Mute()
         else:
             raise util.GoodMorningException('Unknown audio mixer "%s"' % (str(audio_type)))
+        """
+        # Alarms init
+        self.alarm_scheduler = config.read_alarms(config_file)
         
     def start(self):
-        self.trans.start()
-        self.am.start() # mix() instead of start()?
+        self.alarm_scheduler.start()
+        #self.trans.start()
+        #self.am.start() # mix() instead of start()?
 
         running = True
         while running:
@@ -100,7 +105,6 @@ class GoodMorning(object):
         self.quit()  
 
 def main(argv):
-    
     import keyboard
     opts, args = getopt.getopt(argv,"hd:a:")
     
@@ -112,7 +116,8 @@ def main(argv):
         if opt == '-a':
             a = {'mix': GoodMorning.AT_MIXER,
                  'mute': GoodMorning.AT_MUTE}[arg]
-    GoodMorning(d,a).start()
+    #alarms = config.read_alarms('config.json')
+    GoodMorning(d,a,'config.json').start()
     """s = Scheduler()
     a1 = Alarm(21,21)
     s.add_alarm(a1)
