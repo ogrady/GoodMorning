@@ -171,7 +171,7 @@ class Scenery(object):
             self.display = display.LED(rd = rd, gd = gd, bd = bd,
                               rmax = rmax, gmax = gmax, bmax = bmax,
                               sleep = sleep)
-        except:
+        except RuntimeError as e:
             # not running on RaspberryPi -> display the proto
             self.display = display.LEDProto(rd = rd, gd = gd, bd = bd,
                                                rmax = rmax, gmax = gmax, bmax = bmax,

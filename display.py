@@ -151,7 +151,7 @@ class LED(ColourTransition):
     def __init__(self, rd, gd, bd, rmax, gmax, bmax, sleep = 0.5, led_count = 32, spi_port = 0, spi_device = 0):
         import RPi.GPIO as GPIO # must remain in constructor to only trigger error upon instantiating!
         
-        ColourTransition.__init__(self, display
+        ColourTransition.__init__(self, None
             , rd = lambda x:rd
             , gd = lambda x:gd
             , bd = lambda x:bd
