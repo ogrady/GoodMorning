@@ -167,15 +167,16 @@ class Scenery(object):
     def __init__(self, name, sounds, rd, gd, bd, rmax, gmax, bmax, sleep):
         self.name = name
         self.sleep = sleep
-        # FIXME: remove
-        if util.DEVELOPMENT:
+        try:
+            self.display = display.LED(rd = rd, gd = gd, bd = bd,
+                              rmax = rmax, gmax = gmax, bmax = bmax,
+                              sleep = sleep)
+        except:
+            # not running on RaspberryPi -> display the proto
             self.display = display.LEDProto(rd = rd, gd = gd, bd = bd,
                                                rmax = rmax, gmax = gmax, bmax = bmax,
                                                sleep = sleep, led_count = 100)
-        else:
-            self.display = display.LED(rd = rd, gd = gd, bd = bd,
-                                          rmax = rmax, gmax = gmax, bmax = bmax,
-                                          sleep = sleep)
+
         self.audiomixer = audio.AudioMixer(sound_groups = sounds)
             
     def start(self):
