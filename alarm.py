@@ -167,7 +167,6 @@ class Scenery(object):
     def __init__(self, name, sounds, rd, gd, bd, rmax, gmax, bmax, sleep):
         self.name = name
         self.sleep = sleep
-        self.elapsed = 0
         # FIXME: remove
         if util.DEVELOPMENT:
             self.display = display.LEDProto(rd = rd, gd = gd, bd = bd,
@@ -180,29 +179,32 @@ class Scenery(object):
         self.audiomixer = audio.AudioMixer(sound_groups = sounds)
             
     def start(self):
-        util.PygameEventListener.instance.dispatcher.add_listener(self)
         self.display.start()
-        self.audiomixer.start() # mix() instead of start()?
+        self.audiomixer.start()
         
     def stop(self):
-        util.PygameEventListener.instance.dispatcher.remove_listener(self)
         self.display.stop()
         self.audiomixer.stop()
-        
-    def on_pygame_event(self, e):
-        if e.type >= util.Event.SOUND_ENDED and e.type <= util.Event.SOUND_ENDED + len(self.audiomixer.sound_chans):
-                self.audiomixer.next_sound(e.type - util.Event.SOUND_ENDED)
 
 class SceneryAlarm(Alarm):
-    # FIXME: add max seconds to config after which alarm ends
-    def __init__(self, hour, minute = 0, second = 0, days = [], name = '', scenery = None):
+    def __init__(self, hour, minute = 0, second = 0, days = [], name = '', scenery = None, duration = -1):
         Alarm.__init__(self, hour = hour, minute = minute, second = second, days = days, name = name)
         self.scenery = scenery
+        self.duration = duration
         
     def ring(self):
         Alarm.ring(self)
+        util.TimeTicker.instance.dispatcher.add_listener(self)
         self.scenery.start()
+        
             
     def turn_off(self):
         Alarm.turn_off(self)
+        util.TimeTicker.instance.dispatcher.remove_listener(self)
         self.scenery.stop()
+
+    def on_tick(self, elapsed):
+        if self.duration > 0:
+            self.duration -= elapsed
+            if self.duration <= 0:
+                self.turn_off()

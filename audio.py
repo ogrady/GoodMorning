@@ -1,4 +1,3 @@
-from threading import Thread
 import os
 import random
 import pygame as pg
@@ -11,7 +10,7 @@ version: 1.0
 author: Daniel O'Grady  
 '''
 
-class AudioMixer(Thread):
+class AudioMixer(object):
     '''
     Mixes ambient and effect sounds, where ambient
     sounds actually loop indefinitely while effects
@@ -30,7 +29,6 @@ class AudioMixer(Thread):
         channels = len(sound_groups)
         if channels < 2:
             raise AudioException("Invalid channel count '%s', expected at least 2 channels" % (channels,))
-        Thread.__init__(self, target = self.mix)
         self.ambients = sound_groups[0] #self.load_sounds("/".join((basedir, ambient_dir)))
         self.sounds = sound_groups[1:]
         # self.sounds = self.load_sounds("/".join((basedir, sound_dir)))
@@ -40,6 +38,16 @@ class AudioMixer(Thread):
         self.ambient_chan.set_endevent(util.Event.SOUND_ENDED)
         for i in range(0, len(self.sound_chans)):
             self.sound_chans[i].set_endevent(util.Event.SOUND_ENDED + i)
+            
+    def start(self):
+        util.PygameEventListener.instance.dispatcher.add_listener(self)
+        self.mix()
+            
+    def stop(self):
+        util.PygameEventListener.instance.dispatcher.remove_listener(self)
+        for c in self.sound_chans:
+            c.stop()
+        self.ambient_chan.stop()
     
     def load_sounds_from_dir(self, dir, extensions = (".ogg", ".wav")):
         '''
@@ -80,9 +88,10 @@ class AudioMixer(Thread):
         for i in range(0, len(self.sound_chans)):
             self.next_sound(channel = i)
             
+    def on_pygame_event(self, e):
+        if e.type >= util.Event.SOUND_ENDED and e.type <= util.Event.SOUND_ENDED + len(self.sound_chans):
+            self.next_sound(e.type - util.Event.SOUND_ENDED)
+            
 class Mute(AudioMixer):
-    def __init__(self):
-        Thread.__init__(self, target = self.mix)
-        
     def mix(self):
         pass

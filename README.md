@@ -56,6 +56,7 @@ The expected format is:
     days: [..], ([string]: 'mon',..,'sun', OPTIONAL default []. results in ringing every day)
     scenery: .., (string: any name of a scenery defined above)
     active: .., (boolean: whether to ring, OPTIONAL defaults to true)
+    duration .., (int: seconds after which the alarm turns itself off automatically, OPTIONAL defaults to -1, which means just keep ringing)
   }
 ```
 
@@ -77,6 +78,9 @@ Everything else is undefined behaviour. See this commented example:
                 "dir1/", # chan1: all files in dir1/
                 "rain.ogg", # chan2: just rain.ogg
                 ["dir2/", "rain.ogg"] # chan3: all files in dir2/ plus rain.ogg
+                "rgb_deltas": [7,2,2], # RGB will be increased by (7,2,2) on each tick
+                "rgb_max": [255,220,220], # RGB will be raised to no more than (255,220,220)
+                "sleep": 0.5  # RGB will be update after this many seconds
         }
     },
 ```

@@ -11,16 +11,8 @@ from alarm import Scheduler, SceneryAlarm, Scenery
 
 def read_alarms(file, scheduler = None):
     '''
-    file: json file from which to read the alarms. They are expected to
-          be in the format: 
-          alarms: [
-            name: .., (description OPTIONAL)
-            hour: .., (hour)
-            minute: .., (minute OPTIONAL)
-            second: .., (second OPTIONAL)
-            days: [..], (array of 'mon',..'sun' OPTIONAL, empty results in ringing every day)
-            active: .., (boolean whether to ring OPTIONAL, defaults to true)
-          ]
+    file: json file from which to read the alarms.
+    See README.md for expected format.
     scheduler: scheduler into which to load the alarms. If no scheduler
                is passed a new one will be created
     returns: the scheduler into which the alarms have been read
@@ -34,6 +26,7 @@ def read_alarms(file, scheduler = None):
             # FIXME: typecheck!
             active = alarm_json['active'] if 'active' in alarm_json else True
             if active:
+                duration = alarm_json['duration'] if 'duration' in alarm_json else -1
                 name = alarm_json['name'] if 'name' in alarm_json else ''
                 hour = alarm_json['hour'] # mandatory!
                 minute = alarm_json['minute'] if 'minute' in alarm_json else 0
@@ -43,21 +36,14 @@ def read_alarms(file, scheduler = None):
                 if not scenery_key in sceneries:
                     raise util.AlarmException("Invalid scenery key: '%s' for alarm '%s'" % (scenery_key, name))
                 scenery = sceneries[scenery_key]
-                alarm = SceneryAlarm(name = name, hour = hour, minute = minute, second = second, days = days, scenery = scenery)
+                alarm = SceneryAlarm(name = name, hour = hour, minute = minute, second = second, days = days, scenery = scenery, duration = duration)
                 scheduler.add_alarm(alarm)
     return scheduler
 
 def read_sceneries(file):
     '''
-    file: json file from which to read the sceneries. They are expected
-          to be in the format:
-          sceneries: {
-            [name: { (description)
-                files: [..] (array of files, see README.md)
-                rgb_deltas: [..] (rgb deltas, should be positive and not exceed 255 each)
-                rgb_max: [..] (max rgb values, shouldn't exceed 255 each)
-            }]
-          }
+    file: json file from which to read the sceneries.
+    See README.md for expected format.
     '''
     sceneries = {}
     with open(file) as fd:
