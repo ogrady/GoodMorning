@@ -165,7 +165,6 @@ class LED(ColourTransition):
         self.pixels = Strip.WS2801Pixels(led_count, spi=SPI.SpiDev(spi_port, spi_device), gpio=GPIO)
         self.pixels.clear()
         self.pixels.show()
-        self.TimeTicker.instance.dispatcher.add_listener(self)
     
     def next(self):
         r,g,b = self.rgb
