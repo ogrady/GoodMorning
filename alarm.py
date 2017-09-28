@@ -3,6 +3,7 @@ import time
 import functools
 import util
 import pygame
+import logger as l
 
 import display
 import audio
@@ -38,6 +39,7 @@ class Scheduler(object):
         Note: leaving days empty results in the alarm ringing
         every day!
         '''
+        l.log("Scheduling %s" % (str(alarm),))
         if alarm.days:
             for d in alarm.days:
                 ev = self._scheduler.every()
@@ -139,8 +141,6 @@ class Alarm(object):
         Action to take when this alarm rings.
         '''
         pass
-        print("RING RING")
-        print(self.string)
         
     def turn_off(self):
         '''
@@ -162,6 +162,9 @@ class Alarm(object):
         self.minute = minute
         self.second = second
         self.days = days
+        
+    def __str__(self):
+        return "'%s' on %d:%d:%d, %s" % (self.name, self.hour, self.minute, self.second, self.days)
 
 class Scenery(object):
     def __init__(self, name, sounds, rd, gd, bd, rmax, gmax, bmax, sleep):
@@ -192,20 +195,24 @@ class SceneryAlarm(Alarm):
         Alarm.__init__(self, hour = hour, minute = minute, second = second, days = days, name = name)
         self.scenery = scenery
         self.duration = duration
+        self.elapsed = 0
         
     def ring(self):
+        l.log("Starting alarm '%s' on %s" % (self.name, self.string))
         Alarm.ring(self)
         util.TimeTicker.instance.dispatcher.add_listener(self)
         self.scenery.start()
         
             
     def turn_off(self):
+        l.log("Turning off alarm '%s'" % (self.name,))
         Alarm.turn_off(self)
         util.TimeTicker.instance.dispatcher.remove_listener(self)
         self.scenery.stop()
 
     def on_tick(self, elapsed):
         if self.duration > 0:
-            self.duration -= elapsed
-            if self.duration <= 0:
+            self.elapsed += elapsed
+            if self.elapsed >= self.duration <= 0:
+                l.log("Alarm '%s' exceeded configured duration of %d seconds" % (self.name, self.duration))
                 self.turn_off()
