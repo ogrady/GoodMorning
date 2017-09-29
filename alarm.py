@@ -174,8 +174,17 @@ class Scenery(object):
             self.display = display.LED(rd = rd, gd = gd, bd = bd,
                               rmax = rmax, gmax = gmax, bmax = bmax,
                               sleep = sleep)
+            l.log("Initialised scenery '%s'" % (self.name,))
         except RuntimeError as e:
+            if str(e) != 'This module can only be run on a Raspberry Pi!':
+                # Nasty hack.
+                # The LED module doesn't use a specific type of exception for
+                # their environment check. To avoid catching unrelated RuntimeErrors,
+                # we check the message string. This could lead to errors in
+                # other version, where the message could have been altered!
+                raise e
             # not running on RaspberryPi -> display the proto
+            l.log("Detected dummy environment. Using LEDProto for '%s' instead" % (self.name,))
             self.display = display.LEDProto(rd = rd, gd = gd, bd = bd,
                                                rmax = rmax, gmax = gmax, bmax = bmax,
                                                sleep = sleep, led_count = 100)

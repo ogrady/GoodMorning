@@ -34,26 +34,26 @@ class GoodMorning(object):
     
     def quit(self):
         l.log("Stopping GoodMorning as requested")
-        util.PygameEventListener.instance.dispatcher.remove_listener(self)
         self.keyboard.stop()
+        util.PygameEventListener.instance.stop()
         util.TimeTicker.instance.stop()
         pygame.quit()
-        logger.Logger.instance.stop()
+        l.Logger.instance.close()
     
     def __init__(self, config_file):
-        l.log("Booting GoodMorning")
         pygame.mixer.pre_init(frequency = 44100, size = -16, channels = 3)
         pygame.init()
         # self.keyboard = keyboard.DummyKeyboard()
         self.keyboard = keyboard.RawInputWrapper()
         self.keyboard.dispatcher.add_listener(keyboard.PygameKeyboardEventGenerator())
-        self.keyboard.start()
 
         # Alarms init
         self.alarm_scheduler = config.read_alarms(config_file)
         
     def start(self):
+        l.log("Booting GoodMorning")
         util.PygameEventListener.instance.dispatcher.add_listener(self)
+        self.keyboard.start()
         self.alarm_scheduler.start()
         
     def on_pygame_event(self, e):

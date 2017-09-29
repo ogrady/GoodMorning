@@ -104,6 +104,9 @@ class EventDispatcher(object):
     def remove_listener(self, listener):
         self._listeners.remove(listener)
         
+    def clear_listeners(self):
+        self._listeners = []
+        
     def dispatch(self, event):
         for l in self._listeners:
             getattr(l, self._notify_method)(event)
@@ -112,7 +115,7 @@ class EventDispatcher(object):
 class PygameEventListener(object):
     def __init__(self):
         TimeTicker.instance.dispatcher.add_listener(self)
-        self.running = False
+        self.running = True
         self.dispatcher = EventDispatcher("on_pygame_event")
         pygame.init()
         
@@ -128,7 +131,10 @@ class PygameEventListener(object):
             pass 
         
     def stop(self):
-        TimeTicker.instance.dispatcher.remove_listener(self)
+        if self.running:
+            self.dispatcher.clear_listeners()
+            TimeTicker.instance.dispatcher.remove_listener(self)
+        
 
 @Singleton
 class TimeTicker(Thread):
@@ -140,7 +146,9 @@ class TimeTicker(Thread):
         self.start()
         
     def stop(self):
-        self.running = False
+        if self.running:
+            self.dispatcher.clear_listeners()
+            self.running = False
         
     def tick(self):
         self.running = True

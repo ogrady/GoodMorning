@@ -19,13 +19,20 @@ class Logger(object):
         self.handle = open('goodmorning.log', 'a')
     
     def write(self, message, message_type = None):
-        if not message_type:
-            message_type = T_NOTICE
-        self.handle.write("%s %s: %s\n" % (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), message_type, message))
-        self.handle.flush()
+        written = False
+        if self.handle:
+            if not message_type:
+                message_type = T_NOTICE
+            self.handle.write("%s %s: %s\n" % (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), message_type, message))
+            self.handle.flush()
+            written = True
+        return written
+            
         
     def close(self):
-        self.handle.close()
+        if self.handle:
+            self.handle.close()
+            self.handle = None
 
 def log(message, message_type = None):
     Logger.instance.write(message, message_type)

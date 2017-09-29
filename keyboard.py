@@ -41,9 +41,11 @@ class RawInputWrapper(Thread):
         tty.setraw(fd)
     
     def stop(self):
-        self.running = False
-        fd = sys.stdin.fileno()
-        termios.tcsetattr(fd, termios.TCSANOW, self.old_settings)
+        if self.running:
+            self.running = False
+            self.dispatcher.clear_listeners()
+            fd = sys.stdin.fileno()
+            termios.tcsetattr(fd, termios.TCSANOW, self.old_settings)
  
     def listen(self):
         self.running = True
