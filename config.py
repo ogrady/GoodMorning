@@ -65,5 +65,5 @@ def read_sceneries(file):
                     else:
                         sound_files.append(f)
                 channels.append(sound_files)
-        sceneries[name] = Scenery(name, channels, rd,gd,bd, rmax,gmax,bmax, sleep)
+            sceneries[name] = Scenery(name, channels, rd,gd,bd, rmax,gmax,bmax, sleep)
     return sceneries

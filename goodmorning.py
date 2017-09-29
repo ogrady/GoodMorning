@@ -57,7 +57,7 @@ class GoodMorning(object):
         
     def start(self):
         self.running = True
-        l.log("Booting GoodMorning")
+        l.log("Starting GoodMorning")
         util.PygameEventListener.instance.dispatcher.add_listener(self)
         self.keyboard.start()
         self.alarm_scheduler.start()
