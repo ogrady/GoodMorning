@@ -125,7 +125,7 @@ class Alarm(object):
     def second(self):
         return self._second
         
-    @minute.setter
+    @second.setter
     def second(self, value):
         if not (0 <= value < 59):
             raise util.AlarmException("Invalid second: %d" % (value,))
@@ -190,7 +190,7 @@ class Scenery(object):
                 # other version, where the message could have been altered!
                 raise e
             # not running on RaspberryPi -> display the proto
-            l.log("Detected dummy environment. Using LEDProto for '%s' instead" % (self.name,))
+            l.log("Detected dummy environment. Using LEDProto for scenery '%s' instead" % (self.name,))
             self.display = display.LEDProto(rd = rd, gd = gd, bd = bd,
                                                rmax = rmax, gmax = gmax, bmax = bmax,
                                                sleep = sleep, led_count = 100)
@@ -213,20 +213,22 @@ class SceneryAlarm(Alarm):
         self.elapsed = 0
         
     def ring(self):
-        l.log("Starting alarm '%s' on %s" % (self.name, self.string))
-        Alarm.ring(self)
-        util.TimeTicker.instance.dispatcher.add_listener(self)
-        self.scenery.start()
+        if not self.ringing:
+            l.log("Starting alarm '%s' on %s" % (self.name, self.string))
+            Alarm.ring(self)
+            util.TimeTicker.instance.dispatcher.add_listener(self)
+            self.scenery.start()
         
     def turn_off(self):
-        l.log("Turning off alarm '%s'" % (self.name,))
-        Alarm.turn_off(self)
-        util.TimeTicker.instance.dispatcher.remove_listener(self)
-        self.scenery.stop()
+        if self.ringing:
+            l.log("Turning off alarm '%s'" % (self.name,))
+            Alarm.turn_off(self)
+            util.TimeTicker.instance.dispatcher.remove_listener(self)
+            self.scenery.stop()
 
     def on_tick(self, elapsed):
-        if self.duration > 0:
+        if self.duration > 0: # <= 0 -> ring indefinitely
             self.elapsed += elapsed
             if self.elapsed >= self.duration <= 0:
-                l.log("Alarm '%s' exceeded configured duration of %d seconds" % (self.name, self.duration))
+                l.log("Alarm '%s' exceeded configured duration of %d seconds and is turned off" % (self.name, self.duration))
                 self.turn_off()

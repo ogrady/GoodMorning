@@ -89,18 +89,6 @@ class ColourTransition(object):
             self.show()
             self.elapsed = 0
 
-class Sunrise(ColourTransition):
-    def __init__(self, display):
-        assert False, "deprecated!"
-        ColourTransition.__init__(self, display
-            , rd = lambda x:7
-            , gd = lambda x:2
-            , bd = lambda x:2
-            , gmax = 220
-            , bmax = 220
-            , sleep = 0.5
-            )
-
 class LEDProto(ColourTransition):
     LED_size = 10
     LED_space = 5
