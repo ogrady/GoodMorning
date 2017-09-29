@@ -145,7 +145,7 @@ class Alarm(object):
         '''
         Action to take when this alarm rings.
         '''
-        self.rining = True
+        self.ringing = True
         
     def turn_off(self):
         '''
