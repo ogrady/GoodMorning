@@ -26,12 +26,16 @@ class Scheduler(object):
         self._scheduler = schedule.Scheduler()
         self.sleep = sleep
         self.elapsed = 0
+        self.alarms = []
         
     def start(self):
         util.TimeTicker.instance.dispatcher.add_listener(self)
 
     def stop(self):
         util.TimeTicker.instance.dispatcher.remove_listener(self)
+        self._scheduler.clear()
+        [a.turn_off() for a in self.alarms if a.ringing]
+        self.alarms = []
 
     def add_alarm(self, alarm):
         '''
@@ -60,6 +64,7 @@ class Scheduler(object):
                 act.at(alarm.string).do(alarm.ring)
         else:
             self._scheduler.every().day.at(alarm.string).do(alarm.ring)
+        self.alarms.append(alarm)
 
     def remove_alarm(self, index):
         if index >= len(self._scheduler.jobs):
@@ -140,13 +145,13 @@ class Alarm(object):
         '''
         Action to take when this alarm rings.
         '''
-        pass
+        self.rining = True
         
     def turn_off(self):
         '''
         Shutdown action for the rining alarm.
         '''
-        pass
+        self.ringing = False
 
     def __init__(self, hour, minute = 0, second = 0, days = [], name = ''):
         '''
@@ -162,6 +167,7 @@ class Alarm(object):
         self.minute = minute
         self.second = second
         self.days = days
+        self.ringing = False
         
     def __str__(self):
         return "'%s' on %d:%d:%d, %s" % (self.name, self.hour, self.minute, self.second, self.days)
@@ -212,7 +218,6 @@ class SceneryAlarm(Alarm):
         util.TimeTicker.instance.dispatcher.add_listener(self)
         self.scenery.start()
         
-            
     def turn_off(self):
         l.log("Turning off alarm '%s'" % (self.name,))
         Alarm.turn_off(self)
