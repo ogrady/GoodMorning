@@ -7,11 +7,9 @@ Which I can't stand since I need a bit of light when I wake up to get out of bed
 
 Being the outdoorsman I am, I present to you *GoodMorning* - the poor man's ambient wakeup!
 
-It basically ~runs a fullscreen app which~ does a colour transition over time and plays some ambient music and nature sounds.
+It basically does a colour transition on an LED strip over time and plays some ambient music and nature sounds.
 The idea is not new but I hate that all apps I have tried so far use the same sounds every morning.
 So here you go. Random, extendible sounds.
-
-~You'd therefore have to have a monitor with speakers installed in your bedroom. But c'mon, it's 2017.~
 
 The app is still in early development and actually more for my personal use. 
 But feel free to use and modify.
@@ -19,21 +17,21 @@ But feel free to use and modify.
 ## Components
 GoodMorning currently consists of several main components:
 
-1. *display:* several classes to give some visual output, especially colour transistions.
-With my current setup I am using the LED display to control a WS2801 strip. But it also contains classes to control a display.
+1. *display:* classes to give some visual output, especially colour transistions.
+The intended use is with a WS2801 strip.
 
-2. *audio:* a mixer which feeds random sounds from directories into an arbitrary number of audio channels
+2. *audio:* a mixer which feeds random sounds from directories into an arbitrary (but not infinite...) number of audio channels
 and with that creates a somewhat "natural" audio experience.
 
 3. *alarm:* a scheduler which reads alarm times from a JSON file and starts an action at that time.
 
 4. *goodmorning:* the main components which puts all of the above together:
-at the scheduled time the colour transistion will start and audio will start playing.
+at the scheduled times the colour transistion will start and audio will start playing.
 
 ### Audio
-The basic audio mixer expects two directories `ambient/` and `birds/` to be present in the main directory of the app.
-Both are to contain sounds in `.ogg` format. Three channels are being used:
-one for playing ambient sounds, two more for playing bird sounds.
+The audio mixer expects sounds in `.ogg` format. At least two channels are being used:
+one for playing ambient sounds, one more for playing bird sounds. Three-ish more channels
+can be added for ambient sounds (definite count has yet to be determined).
 Sounds are selected and played randomly.
 
 ### Alarm
@@ -45,7 +43,6 @@ The expected format is:
   sceneries: {
     name: { , (string: name of the scenery, must be unique, can be referenced in the alarms sections)
         files: [..] ([string]: paths to read files from. See (1) below! 
-                    
     }
   },
   alarms: { (array of the following)
