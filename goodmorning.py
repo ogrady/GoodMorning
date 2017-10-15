@@ -89,11 +89,11 @@ def main(argv):
             a = {'mix': GoodMorning.AT_MIXER,
                  'mute': GoodMorning.AT_MUTE}[arg]
     try:
-    gm = GoodMorning('config.json')
-    gm.start()
-    if util.DEVELOPMENT:
-        # start the first alarm upon start for debugging!
-        gm.alarm_scheduler.alarms[0].ring()
+        gm = GoodMorning('config.json')
+        gm.start()
+        if util.DEVELOPMENT:
+            # start the first alarm upon start for debugging!
+            gm.alarm_scheduler.alarms[0].ring()
     except Exception as ex:
         l.log("Top level error: " + str(ex), l.T_ERROR)
 
