@@ -14,6 +14,7 @@ author: Daniel O'Grady
 '''
 
 DEVELOPMENT = True
+MAX_SOUND_CHANNELS = 4
 
 class GoodMorningException(Exception):
     def __init__(self, message):
@@ -87,7 +88,6 @@ class Event(Enum):
     '''
     KEYSTROKE = pygame.locals.USEREVENT + 1
     SOUND_ENDED = pygame.locals.USEREVENT + 2
-    
     
 # This is a special kind of stupid!
 # While PyGame allows custom event types, they require you

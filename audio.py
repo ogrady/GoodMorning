@@ -28,7 +28,9 @@ class AudioMixer(object):
         '''
         channels = len(sound_groups)
         if channels < 2:
-            raise AudioException("Invalid channel count '%s', expected at least 2 channels" % (channels,))
+            raise AudioException("Invalid channel count '%d', expected at least 2 channels" % (channels,))
+        if channels > util.MAX_SOUND_CHANNELS:
+            raise AudioException("Too many audio channels (%d), expected a maximum of %d channels" % (channels, util.MAX_SOUND_CHANNELS))
         self.ambients = sound_groups[0] #self.load_sounds("/".join((basedir, ambient_dir)))
         self.sounds = sound_groups[1:]
         # self.sounds = self.load_sounds("/".join((basedir, sound_dir)))
