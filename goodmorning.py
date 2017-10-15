@@ -23,6 +23,7 @@ import logger as l
 
 import sys
 import getopt
+import atexit
 
 class GoodMorning(object):
     DT_LED = 11
@@ -56,6 +57,7 @@ class GoodMorning(object):
         self.alarm_scheduler = config.read_alarms(config_file)
         
     def start(self):
+        atexit.register(self.quit)
         self.running = True
         l.log("Starting GoodMorning")
         util.PygameEventListener.instance.dispatcher.add_listener(self)
@@ -63,11 +65,15 @@ class GoodMorning(object):
         self.alarm_scheduler.start()
         
     def on_pygame_event(self, e):
+        l.log("Received event " + str(e))
         if e.type == pygame.QUIT:
+            l.log("Received termination request")
             self.quit()
         if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
+            l.log("Received esc Keystroke")
             self.quit()
-        if e.type == util.Event.KEYSTROKE and e.message == 'q':
+        if e.type == util.Event.KEYSTROKE.value and e.message == 'q':
+            l.log("Received q Keystroke")
             self.quit()
 
 def main(argv):
@@ -82,7 +88,15 @@ def main(argv):
         if opt == '-a':
             a = {'mix': GoodMorning.AT_MIXER,
                  'mute': GoodMorning.AT_MUTE}[arg]
-    GoodMorning('config.json').start()
+    #try:
+    gm = GoodMorning('config.json')
+    gm.start()
+    gm.alarm_scheduler.alarms[0].ring() # start the first alarm upon start for debugging!
+        
+    """
+    except Exception as ex:
+        l.log("Top level error: " + str(ex), l.T_ERROR)
+    """
 
 if __name__ == "__main__":
     main(sys.argv[1:])

@@ -1,7 +1,10 @@
 import pygame
 import time
+import functools
 from pygame import locals
 from threading import Thread
+from enum import Enum
+
 
 '''
 Utility classes and exceptions.
@@ -76,14 +79,27 @@ class Singleton:
     def __instancecheck__(self, inst):
         return isinstance(inst, self._decorated)
         
-class Event(object):
+class Event(Enum):
     '''
     PyGame has this great thing where they use magic values
     to queue all events into one big queue. And users are kindly
     allowed to create custom events in a certain range. Screw them.
     '''
-    SOUND_ENDED = pygame.locals.USEREVENT + 1
-    KEYSTROKE = pygame.locals.USEREVENT + 100 # can't be +2, since we use SOUND_ENDED + n to broadcast that channel n has ended a sound
+    KEYSTROKE = pygame.locals.USEREVENT + 1
+    SOUND_ENDED = pygame.locals.USEREVENT + 2
+    
+    
+# This is a special kind of stupid!
+# While PyGame allows custom event types, they require you
+# to be between their reserved values USEREVENT and NUMEVENTS,
+# which gives you 9 values in total.
+# But sometimes you have no choice but to identify the source
+# of an event via the event-type-id (mixer.set_endevent).
+# So here you go. Making sure all our constants are valid,
+# looking forward to conflicting constant values when a user
+# chooses use more than 5 channels... smh
+# FIXME: incorporate maximum channels in Scene.__init__
+assert reduce((lambda o,n: o and n), map(lambda x: pygame.locals.USEREVENT < x < pygame.locals.NUMEVENTS, [e.value for e in Event]), True) , "all user events must be between USEREVENT (%d) and NUMEVENTS (%d)" % (pygame.locals.USEREVENT, pygame.locals.NUMEVENTS)
 
 class EventDispatcher(object):
     '''

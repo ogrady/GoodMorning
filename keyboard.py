@@ -56,5 +56,6 @@ class RawInputWrapper(Thread):
         
 class PygameKeyboardEventGenerator(object):
     def on_keydown(self, ch):
-        e = pygame.event.Event(util.Event.KEYSTROKE, message=ch)
+        e = pygame.event.Event(util.Event.KEYSTROKE.value, message=ch)
         pygame.event.post(e)
+        pygame.event.pump()

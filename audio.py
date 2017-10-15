@@ -35,9 +35,9 @@ class AudioMixer(object):
         pg.mixer.init(channels = channels)
         self.ambient_chan = pg.mixer.Channel(0)
         self.sound_chans = [pg.mixer.Channel(i) for i in range(1,channels)]
-        self.ambient_chan.set_endevent(util.Event.SOUND_ENDED)
+        self.ambient_chan.set_endevent(util.Event.SOUND_ENDED.value)
         for i in range(0, len(self.sound_chans)):
-            self.sound_chans[i].set_endevent(util.Event.SOUND_ENDED + i)
+            self.sound_chans[i].set_endevent(util.Event.SOUND_ENDED.value + i + 1) # skip i = 0 as it is the ambient channel
         if not self.sounds:
             raise AudioException("No sounds were loaded")
         if not self.ambients:
@@ -93,8 +93,8 @@ class AudioMixer(object):
             self.next_sound(channel = i)
             
     def on_pygame_event(self, e):
-        if e.type >= util.Event.SOUND_ENDED and e.type <= util.Event.SOUND_ENDED + len(self.sound_chans):
-            self.next_sound(e.type - util.Event.SOUND_ENDED)
+        if e.type >= util.Event.SOUND_ENDED.value and e.type <= util.Event.SOUND_ENDED.value + len(self.sound_chans):
+            self.next_sound(e.type - util.Event.SOUND_ENDED.value - 1) # -1 to compensate for the 0st channel which is ambient
             
 class Mute(AudioMixer):
     def mix(self):
