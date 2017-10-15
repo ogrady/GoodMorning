@@ -65,7 +65,7 @@ class GoodMorning(object):
         self.alarm_scheduler.start()
         
     def on_pygame_event(self, e):
-        l.log("Received event " + str(e))
+        # l.log("Received event " + str(e))
         if e.type == pygame.QUIT:
             l.log("Received termination request")
             self.quit()

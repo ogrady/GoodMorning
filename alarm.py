@@ -229,6 +229,6 @@ class SceneryAlarm(Alarm):
     def on_tick(self, elapsed):
         if self.duration > 0: # <= 0 -> ring indefinitely
             self.elapsed += elapsed
-            if self.elapsed >= self.duration <= 0:
+            if self.elapsed >= self.duration:
                 l.log("Alarm '%s' exceeded configured duration of %d seconds and is turned off" % (self.name, self.duration))
                 self.turn_off()
