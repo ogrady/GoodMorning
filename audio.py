@@ -38,6 +38,10 @@ class AudioMixer(object):
         self.ambient_chan.set_endevent(util.Event.SOUND_ENDED)
         for i in range(0, len(self.sound_chans)):
             self.sound_chans[i].set_endevent(util.Event.SOUND_ENDED + i)
+        if not self.sounds:
+            raise AudioException("No sounds were loaded")
+        if not self.ambients:
+            raise AudioException("No ambients were loaded")
             
     def start(self):
         util.PygameEventListener.instance.dispatcher.add_listener(self)

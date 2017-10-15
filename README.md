@@ -80,7 +80,7 @@ Everything else is undefined behaviour. See this commented example:
                 ["dir2/", "rain.ogg"] # chan3: all files in dir2/ plus rain.ogg
                 "rgb_deltas": [7,2,2], # RGB will be increased by (7,2,2) on each tick
                 "rgb_max": [255,220,220], # RGB will be raised to no more than (255,220,220)
-                "sleep": 0.5  # RGB will be update after this many seconds
+                "sleep": 0.5  # RGB will be updated after this many seconds
         }
     },
 ```
