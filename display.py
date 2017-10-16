@@ -41,6 +41,8 @@ class ColourTransition(object):
         If the transition is currently not running this does nothing.
         '''
         util.TimeTicker.instance.dispatcher.remove_listener(self)
+        self.rgb = init
+        self.elapsed = 0
     
     def __init__(self, display, rd = lambda x:1, gd = lambda x:1, bd = lambda x:1, rmax = 255, gmax = 255, bmax = 255, sleep = 0.5, init = (0,0,0)):
         '''

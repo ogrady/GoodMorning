@@ -224,6 +224,8 @@ class SceneryAlarm(Alarm):
             l.log("Turning off alarm '%s'" % (self.name,))
             Alarm.turn_off(self)
             util.TimeTicker.instance.dispatcher.remove_listener(self)
+            if self.elapsed > 0:
+                self.elapsed = 0 # don't change if <= 0 -> indefinite ringing
             self.scenery.stop()
 
     def on_tick(self, elapsed):
