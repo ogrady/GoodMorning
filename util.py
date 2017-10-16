@@ -13,7 +13,7 @@ version: 1.0
 author: Daniel O'Grady  
 '''
 
-DEVELOPMENT = True
+DEVELOPMENT = False
 MAX_SOUND_CHANNELS = 4
 
 class GoodMorningException(Exception):
