@@ -99,7 +99,7 @@ class Event(Enum):
 # looking forward to conflicting constant values when a user
 # chooses use more than 5 channels... smh
 # FIXME: incorporate maximum channels in Scene.__init__
-assert reduce((lambda o,n: o and n), map(lambda x: pygame.locals.USEREVENT < x < pygame.locals.NUMEVENTS, [e.value for e in Event]), True) , "all user events must be between USEREVENT (%d) and NUMEVENTS (%d)" % (pygame.locals.USEREVENT, pygame.locals.NUMEVENTS)
+assert functools.reduce((lambda o,n: o and n), map(lambda x: pygame.locals.USEREVENT < x < pygame.locals.NUMEVENTS, [e.value for e in Event]), True) , "all user events must be between USEREVENT (%d) and NUMEVENTS (%d)" % (pygame.locals.USEREVENT, pygame.locals.NUMEVENTS)
 
 class EventDispatcher(object):
     '''
