@@ -15,6 +15,8 @@ author: Daniel O'Grady
 
 DEVELOPMENT = False
 MAX_SOUND_CHANNELS = 4
+ALARMS_FILE = 'alarms.json'
+CONFIG_FILE = 'config.cfg'
 
 class GoodMorningException(Exception):
     def __init__(self, message):
@@ -37,6 +39,10 @@ class SchedulerException(GoodMorningException):
         GoodMorningException.__init__(self, message)    
 
 class DispatcherException(GoodMorningException):
+    def __init__(self, message):
+        GoodMorningException.__init__(self, message)    
+        
+class ConfigException(GoodMorningException):
     def __init__(self, message):
         GoodMorningException.__init__(self, message)    
         

@@ -89,7 +89,7 @@ def main(argv):
             a = {'mix': GoodMorning.AT_MIXER,
                  'mute': GoodMorning.AT_MUTE}[arg]
     try:
-        gm = GoodMorning('config.json')
+        gm = GoodMorning(util.ALARMS_FILE)
         gm.start()
         if util.DEVELOPMENT:
             # start the first alarm upon start for debugging!
@@ -98,4 +98,6 @@ def main(argv):
         l.log("Top level error: " + str(ex), l.T_ERROR)
 
 if __name__ == "__main__":
+    config.read_config_value("config.cfg", "foo", "bar")
+    exit()
     main(sys.argv[1:])

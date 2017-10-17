@@ -36,7 +36,7 @@ Sounds are selected and played randomly.
 
 ### Alarm
 #### alarms.json
-The app expects a file `config.json` to be located in the main directory of the app.
+The app expects a file `alarms.json` to be located in the main directory of the app.
 The expected format is:
 
 ```

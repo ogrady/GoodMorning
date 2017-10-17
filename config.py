@@ -7,6 +7,7 @@ author: Daniel O'Grady
 import json
 import os
 import util
+import configparser
 from alarm import Scheduler, SceneryAlarm, Scenery
 
 def read_alarms(file, scheduler = None):
@@ -67,3 +68,31 @@ def read_sceneries(file):
                 channels.append(sound_files)
             sceneries[name] = Scenery(name, channels, rd,gd,bd, rmax,gmax,bmax, sleep)
     return sceneries
+
+def read_config_value(file, section, key, default = None):
+    '''
+    Reads a config entry from the passed position.
+    Note that this is a rather expensive function (IO)
+    and shouldn't be used excessively!
+    
+    file: cfg file to read from
+    section: [SECTION] to read from
+    key: the key under which to find the entry in the section
+    default: the default value. If the default is None (default case!)
+             this will raise an exception!
+    
+    returns: either the found value or None if either the
+             section or the key were not found inside the file
+    '''
+    config = configparser.ConfigParser()
+    value = default
+    with open(file) as fp:
+        config.readfp(fp)
+        try:
+            value = config.get(section, key)
+        except (configparser.NoSectionError, KeyError):
+            if default is None:
+                raise util.ConfigException("Couldn't find value for key '%s' in section '%s' of file '%s'" % (key, section, file))
+            else:
+                value = default
+    return value
