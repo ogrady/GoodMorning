@@ -236,6 +236,6 @@ class SceneryAlarm(Alarm):
 
 class SceneryLullaby(SceneryAlarm):
     def __init__(self, name, scenery = None, duration = -1):
-        SceneryAlarm.__init__(self, hour = -1, minute = -1, second = -1, days = [], name = name, duratio = duration)
+        SceneryAlarm.__init__(self, hour = 0, minute = 0, second = 0, days = [], name = name, scenery = scenery, duration = duration)
         
 lullabies = {}

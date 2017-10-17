@@ -56,6 +56,10 @@ class ConfigException(GoodMorningException):
     def __init__(self, message):
         GoodMorningException.__init__(self, message)    
         
+class CommandException(GoodMorningException):
+    def __init__(self, message):
+        GoodMorningException.__init__(self, message)  
+        
 class Singleton:
     '''
     A non-thread-safe helper class to ease implementing singletons.

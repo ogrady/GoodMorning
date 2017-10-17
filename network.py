@@ -8,21 +8,23 @@ author: Daniel O'Grady
 
 import socket
 import logger as l
+import command
 from threading import Thread
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8000
-CONNECTION_TIMEOUT = 2
+CONNECTION_TIMEOUT = 30
 BUFFER_SIZE = 64
 
 class NetworkListener(Thread):
-    def __init__(self, host, port, max_connections = 2, socket_timeout = 10):
+    def __init__(self, host, port, max_connections = 2, socket_timeout = 5):
         Thread.__init__(self, target = self.listen)
         self.host = host
         self.port = port
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.settimeout(socket_timeout)
         self.max_connections = max_connections
+        self.cmd = command.CommandDispatcher()
         self.running = False
         
     def stop(self):
@@ -43,11 +45,13 @@ class NetworkListener(Thread):
                         buf = connection.recv(BUFFER_SIZE)
                         if len(buf) > 0:
                             l.log("Input '%s' received from %s" % (buf, address))
-                            print (buf)
-                    except:
+                            self.cmd.execute(buf.decode("utf-8").replace("\n", ""))
+                    except Exception as e:
+                        print(e)
                         pass
                         # ignore - recv() time out
                     connection.close()
                 except:
                     pass
                     # ignore - accept() timed out
+            self.socket.close()

@@ -104,7 +104,7 @@ def main(argv):
         if dev_mode:
             # start the first alarm upon start for debugging!
             gm.alarm_scheduler.alarms[0].ring()
-    except (Error, Exception) as ex:
+    except (RuntimeError, Exception) as ex:
         print(type(ex))
         l.log("Top level error: " + str(ex), l.T_ERROR)
         print("Caught toplevel error '%s'. See logfile %s for more info" % (str(ex), util.LOG_FILE))

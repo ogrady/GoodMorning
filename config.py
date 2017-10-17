@@ -84,19 +84,20 @@ def read_lullabies(file):
     sceneries = read_sceneries(file)
     with open(file) as fd:
         data = json.load(fd)
-        for lullaby_json in data['lullabies']:
+        for name, lullaby_json in data['lullabies'].items():
             # FIXME: typecheck!
-            duration = alarm_json['duration'] if 'duration' in alarm_json else -1
-            name = alarm_json['name'] if 'name' in alarm_json else ''
+            if ' ' in name:
+                raise util.AlarmException("Lullaby name may not contain spaces ('%s')" % name) # must be identifiable by CommandDispatcher
             if not name or name == '' or name in lullabies:
                 raise util.AlarmException("Lullabies must have a unique name. Invalid or duplicate name: '%s'" % name)
-            scenery_key = alarm_json['scenery'] if 'scenery' in alarm_json else 'UNDEFINED'
+            scenery_key = lullaby_json['scenery'] if 'scenery' in lullaby_json else 'UNDEFINED'
             if not scenery_key in sceneries:
                 raise util.AlarmException("Invalid scenery key: '%s' for lullaby '%s'" % (scenery_key, name))
             scenery = sceneries[scenery_key]
+            duration = lullaby_json['duration'] if 'duration' in lullaby_json else -1
             lullaby = SceneryLullaby(name = name, scenery = scenery, duration = duration)
             lullabies[name] = lullaby
-    return lullaby
+    return lullabies
 
 def read_config_value(file, section, key, default = None):
     '''

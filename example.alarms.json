@@ -31,5 +31,13 @@
         "scenery": "scene1",
         "active": true
         }
-    ]
+    ],
+    "lullabies":
+    {
+        "goodnight":
+        {
+            "duration": 3600,
+            "scenery": "scene1"
+        }
+    }
 }
