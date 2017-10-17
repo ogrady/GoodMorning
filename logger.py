@@ -14,7 +14,6 @@ T_WARNING = "WARNING"
 
 @Singleton
 class Logger(object):
-    
     def __init__(self):
         self.handle = open(LOG_FILE, 'a')
     
@@ -28,7 +27,6 @@ class Logger(object):
             written = True
         return written
             
-        
     def close(self):
         if self.handle:
             self.handle.close()

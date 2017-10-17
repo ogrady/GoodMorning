@@ -14,17 +14,16 @@ author: Daniel O'Grady
 '''
 
 # CONSTANTS
-MAX_SOUND_CHANNELS = 4
 ALARMS_FILE = "alarms.json"
 CONFIG_FILE = "config.cfg"
 LOG_FILE = "goodmorning.log"
 
 # CONFIG DEFAULTS
-C_DEFAULT_PORT = 8000
 C_DEVELOPMENT = False
 
 # CONFIG SECTIONS AND KEYS
 CS_NETWORK = "NETWORK"
+CK_HOST = "host"
 CK_PORT = "port"
 
 class GoodMorningException(Exception):

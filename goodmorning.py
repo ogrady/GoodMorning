@@ -20,6 +20,7 @@ import util
 import keyboard
 import config
 import logger as l
+import network
 
 import sys
 import getopt
@@ -37,6 +38,7 @@ class GoodMorning(object):
         if self.running:
             self.running = False
             l.log("Stopping GoodMorning as requested")
+            self.server.stop()
             self.keyboard.stop()
             self.alarm_scheduler.stop()
             util.PygameEventListener.instance.stop()
@@ -49,6 +51,12 @@ class GoodMorning(object):
         self.running = False
         pygame.mixer.pre_init(frequency = 44100, size = -16, channels = 3)
         pygame.init()
+        # Network init
+        host = config.read_config_value(util.CONFIG_FILE, util.CS_NETWORK, util.CK_HOST, network.DEFAULT_HOST)
+        port = int(config.read_config_value(util.CONFIG_FILE, util.CS_NETWORK, util.CK_PORT, network.DEFAULT_PORT))
+        self.server = network.NetworkListener(host, port)
+        
+        # Keyboard init
         # self.keyboard = keyboard.DummyKeyboard()
         self.keyboard = keyboard.RawInputWrapper()
         self.keyboard.dispatcher.add_listener(keyboard.PygameKeyboardEventGenerator())
@@ -63,6 +71,7 @@ class GoodMorning(object):
         util.PygameEventListener.instance.dispatcher.add_listener(self)
         self.keyboard.start()
         self.alarm_scheduler.start()
+        self.server.start()
         
     def on_pygame_event(self, e):
         # l.log("Received event " + str(e))
@@ -95,7 +104,7 @@ def main(argv):
         if dev_mode:
             # start the first alarm upon start for debugging!
             gm.alarm_scheduler.alarms[0].ring()
-    except Exception as ex:
+    except (Error, Exception) as ex:
         print(type(ex))
         l.log("Top level error: " + str(ex), l.T_ERROR)
         print("Caught toplevel error '%s'. See logfile %s for more info" % (str(ex), util.LOG_FILE))
