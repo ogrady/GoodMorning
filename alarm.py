@@ -214,14 +214,14 @@ class SceneryAlarm(Alarm):
         
     def ring(self):
         if not self.ringing:
-            l.log("Starting alarm '%s' on %s" % (self.name, self.string))
+            l.log("Starting %s '%s' on %s" % (self.__class__.__name__, self.name, self.string))
             Alarm.ring(self)
             util.TimeTicker.instance.dispatcher.add_listener(self)
             self.scenery.start()
         
     def turn_off(self):
         if self.ringing:
-            l.log("Turning off alarm '%s'" % (self.name,))
+            l.log("Turning off %s '%s'" % (self.__class__.__name__, self.name,))
             Alarm.turn_off(self)
             util.TimeTicker.instance.dispatcher.remove_listener(self)
             self.elapsed = 0
@@ -233,3 +233,9 @@ class SceneryAlarm(Alarm):
             if self.elapsed >= self.duration:
                 l.log("Alarm '%s' exceeded configured duration of %d seconds and is being turned off" % (self.name, self.duration))
                 self.turn_off()
+
+class SceneryLullaby(SceneryAlarm):
+    def __init__(self, name, scenery = None, duration = -1):
+        SceneryAlarm.__init__(self, hour = -1, minute = -1, second = -1, days = [], name = name, duratio = duration)
+        
+lullabies = {}

@@ -54,6 +54,11 @@ The expected format is:
     scenery: .., (string: any name of a scenery defined above)
     active: .., (boolean: whether to ring, OPTIONAL defaults to true)
     duration .., (int: seconds after which the alarm turns itself off automatically, OPTIONAL defaults to -1, which means just keep ringing)
+  },
+  lullabies: { (array of the following)
+    name: .., (string: description, must be unique!)
+    scenery: .., (string: any name of a scenery defined above)
+    duration: .., (int: seconds after which the scenery turns itself off automatically, OPTIONAL defaults to -1, which means just keep ringing)
   }
 ```
 

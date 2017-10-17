@@ -22,6 +22,8 @@ LOG_FILE = "goodmorning.log"
 C_DEVELOPMENT = False
 
 # CONFIG SECTIONS AND KEYS
+CS_GENERAL = "GENERAL"
+CK_DEVELOPMENT = "development"
 CS_NETWORK = "NETWORK"
 CK_HOST = "host"
 CK_PORT = "port"

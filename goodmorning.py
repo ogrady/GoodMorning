@@ -98,7 +98,7 @@ def main(argv):
             a = {'mix': GoodMorning.AT_MIXER,
                  'mute': GoodMorning.AT_MUTE}[arg]
     try:
-        dev_mode = config.read_config_value(util.CONFIG_FILE, "general", "development", util.C_DEVELOPMENT)
+        dev_mode = config.read_config_value(util.CONFIG_FILE, util.CS_GENERAL, util.CK_DEVELOPMENT, util.C_DEVELOPMENT)
         gm = GoodMorning(util.ALARMS_FILE)
         gm.start()
         if dev_mode:

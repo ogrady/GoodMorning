@@ -1,3 +1,11 @@
+'''
+Handles network traffic.
+Especially incoming command requests.
+
+version: 1.0
+author: Daniel O'Grady  
+'''
+
 import socket
 import logger as l
 from threading import Thread
@@ -8,12 +16,12 @@ CONNECTION_TIMEOUT = 2
 BUFFER_SIZE = 64
 
 class NetworkListener(Thread):
-    def __init__(self, host, port, max_connections = 2, connection_timeout = 2):
+    def __init__(self, host, port, max_connections = 2, socket_timeout = 10):
         Thread.__init__(self, target = self.listen)
         self.host = host
         self.port = port
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.settimeout(connection_timeout)
+        self.socket.settimeout(socket_timeout)
         self.max_connections = max_connections
         self.running = False
         

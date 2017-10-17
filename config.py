@@ -8,7 +8,7 @@ import json
 import os
 import util
 import configparser
-from alarm import Scheduler, SceneryAlarm, Scenery
+from alarm import Scheduler, SceneryAlarm, SceneryLullaby, Scenery
 
 def read_alarms(file, scheduler = None):
     '''
@@ -45,6 +45,8 @@ def read_sceneries(file):
     '''
     file: json file from which to read the sceneries.
     See README.md for expected format.
+    
+    returns: a dictionary of (name -> Scenery)
     '''
     sceneries = {}
     with open(file) as fd:
@@ -66,8 +68,35 @@ def read_sceneries(file):
                     else:
                         sound_files.append(f)
                 channels.append(sound_files)
+            if name in sceneries:
+                raise util.AlarmException("Duplicate name for scenery: '%s'. Name must be unique" % (name,))
             sceneries[name] = Scenery(name, channels, rd,gd,bd, rmax,gmax,bmax, sleep)
     return sceneries
+    
+def read_lullabies(file):
+    '''
+    file: json file from which to read the sceneries.
+    See README.md for expected format.
+    
+    returns: a dictionary of (name -> Lullaby)
+    '''
+    lullabies = {}
+    sceneries = read_sceneries(file)
+    with open(file) as fd:
+        data = json.load(fd)
+        for lullaby_json in data['lullabies']:
+            # FIXME: typecheck!
+            duration = alarm_json['duration'] if 'duration' in alarm_json else -1
+            name = alarm_json['name'] if 'name' in alarm_json else ''
+            if not name or name == '' or name in lullabies:
+                raise util.AlarmException("Lullabies must have a unique name. Invalid or duplicate name: '%s'" % name)
+            scenery_key = alarm_json['scenery'] if 'scenery' in alarm_json else 'UNDEFINED'
+            if not scenery_key in sceneries:
+                raise util.AlarmException("Invalid scenery key: '%s' for lullaby '%s'" % (scenery_key, name))
+            scenery = sceneries[scenery_key]
+            lullaby = SceneryLullaby(name = name, scenery = scenery, duration = duration)
+            lullabies[name] = lullaby
+    return lullaby
 
 def read_config_value(file, section, key, default = None):
     '''
