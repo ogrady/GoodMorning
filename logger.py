@@ -1,4 +1,4 @@
-from util import Singleton
+from util import Singleton, LOG_FILE
 from datetime import datetime
 
 '''
@@ -16,7 +16,7 @@ T_WARNING = "WARNING"
 class Logger(object):
     
     def __init__(self):
-        self.handle = open('goodmorning.log', 'a')
+        self.handle = open(LOG_FILE, 'a')
     
     def write(self, message, message_type = None):
         written = False

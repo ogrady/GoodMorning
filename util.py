@@ -13,10 +13,15 @@ version: 1.0
 author: Daniel O'Grady  
 '''
 
-DEVELOPMENT = False
+# CONSTANTS
 MAX_SOUND_CHANNELS = 4
 ALARMS_FILE = 'alarms.json'
 CONFIG_FILE = 'config.cfg'
+LOG_FILE = 'goodmorning.log'
+
+# CONFIG DEFAULTS
+C_DEFAULT_PORT = 8000
+C_DEVELOPMENT = False
 
 class GoodMorningException(Exception):
     def __init__(self, message):

@@ -2,12 +2,17 @@
 *.sublime-project
 
 # Config
-config.json
+alarms.json
+config.cfg
 
 # Audio files
 *.ogg
 *.wav
 *.mp3
+
+# Resource directories
+ambient/
+birds/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
