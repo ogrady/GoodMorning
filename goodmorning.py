@@ -89,15 +89,16 @@ def main(argv):
             a = {'mix': GoodMorning.AT_MIXER,
                  'mute': GoodMorning.AT_MUTE}[arg]
     try:
+        dev_mode = config.read_config_value(util.CONFIG_FILE, "general", "development", util.C_DEVELOPMENT)
         gm = GoodMorning(util.ALARMS_FILE)
         gm.start()
-        if util.DEVELOPMENT:
+        if dev_mode:
             # start the first alarm upon start for debugging!
             gm.alarm_scheduler.alarms[0].ring()
     except Exception as ex:
+        print(type(ex))
         l.log("Top level error: " + str(ex), l.T_ERROR)
+        print("Caught toplevel error '%s'. See logfile %s for more info" % (str(ex), util.LOG_FILE))
 
 if __name__ == "__main__":
-    config.read_config_value("config.cfg", "foo", "bar")
-    exit()
     main(sys.argv[1:])

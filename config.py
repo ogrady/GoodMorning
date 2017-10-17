@@ -90,7 +90,7 @@ def read_config_value(file, section, key, default = None):
         config.readfp(fp)
         try:
             value = config.get(section, key)
-        except (configparser.NoSectionError, KeyError):
+        except (configparser.NoSectionError, KeyError, configparser.NoOptionError):
             if default is None:
                 raise util.ConfigException("Couldn't find value for key '%s' in section '%s' of file '%s'" % (key, section, file))
             else:
