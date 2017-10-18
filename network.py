@@ -29,6 +29,7 @@ class NetworkListener(Thread):
         
     def stop(self):
         self.running = False
+        self.socket.close()
 
     def listen(self):
         if not self.running:

@@ -43,6 +43,13 @@ The expected format is:
   sceneries: {
     name: { , (string: name of the scenery, must be unique, can be referenced in the alarms sections)
         files: [..] ([string]: paths to read files from. See (1) below! 
+        rgb_deltas: [..], ([int]: exactly three values, describing how the RGB values change with each tick)
+        rgb_min: [..], ([int]: exactly three values, descibing the minimum values for RGB, OPTIONAL default (0,0,0))
+        rgb_max: [..], ([int]: exactly three values, describing the minimum values for RGB, OPTIONAL default (255,255,255))
+        rgb_init: [..], ([int]: exatly three values, describing what the RGB values are set to at the start, OPTIONAL default (0,0,0))
+        sleep: .. (int: delay between each tick, relevant for stretching out the scenery)
+    },
+    ..
     }
   },
   alarms: { (array of the following)
@@ -53,7 +60,7 @@ The expected format is:
     days: [..], ([string]: 'mon',..,'sun', OPTIONAL default []. results in ringing every day)
     scenery: .., (string: any name of a scenery defined above)
     active: .., (boolean: whether to ring, OPTIONAL defaults to true)
-    duration .., (int: seconds after which the alarm turns itself off automatically, OPTIONAL defaults to -1, which means just keep ringing)
+    duration .. (int: seconds after which the alarm turns itself off automatically, OPTIONAL defaults to -1, which means just keep ringing)
   },
   lullabies: { (array of the following)
     name: .., (string: description, must be unique!)

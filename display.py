@@ -44,7 +44,7 @@ class ColourTransition(object):
         self.rgb = self.init
         self.elapsed = 0
     
-    def __init__(self, display, rd = lambda x:1, gd = lambda x:1, bd = lambda x:1, rmax = 255, gmax = 255, bmax = 255, sleep = 0.5, init = (0,0,0)):
+    def __init__(self, display, rd = lambda x:0, gd = lambda x:0, bd = lambda x:0, rmin = 0, gmin = 0, bmin = 0, rmax = 255, gmax = 255, bmax = 255, sleep = 0.5, init = (0,0,0)):
         '''
         gui: display for which to fill the colour
         rd: red delta-function for each step
@@ -70,12 +70,12 @@ class ColourTransition(object):
     def next(self):
         '''
         Calculates the next step based on the deltas.
-        Each component is capped at 255.
+        Each component is capped between the respective min and max.
         '''
         r,g,b = self.rgb
-        r = min(self.rmax,(r+self.rd(r)))
-        g = min(self.gmax,(g+self.gd(g)))
-        b = min(self.bmax,(b+self.bd(b)))
+        r = max(self.rmin, min(self.rmax,(r+self.rd(r))))
+        g = max(self.gmin, min(self.gmax,(g+self.gd(g))))
+        b = max(self.bmin, min(self.bmax,(b+self.bd(b))))
         self.rgb = (r,g,b)
     
     def show(self):
@@ -97,15 +97,19 @@ class LEDProto(ColourTransition):
     
     import pygame
     
-    def __init__(self, rd, gd, bd, rmax, gmax, bmax, sleep = 0.5, led_count = 100):
+    def __init__(self, rd, gd, bd, rmin, gmin, bmin, rmax, gmax, bmax, sleep = 0.5, led_count = 100, init = (0,0,0)):
         ColourTransition.__init__(self, None
             , rd = lambda x:rd
             , gd = lambda x:gd
             , bd = lambda x:bd
+            , rmin = rmin
+            , gmin = gmin
+            , bmin = bmin
             , rmax = rmax
             , gmax = gmax
             , bmax = bmax
             , sleep = sleep
+            , init = init
             )
         # pygame.display.set_mode((0,0),pygame.FULLSCREEN)
         dimensions = (LEDProto.LED_size, 20 + led_count * LEDProto.LED_size)
@@ -138,17 +142,21 @@ class LEDProto(ColourTransition):
 
 class LED(ColourTransition):
    
-    def __init__(self, rd, gd, bd, rmax, gmax, bmax, sleep = 0.5, led_count = 32, spi_port = 0, spi_device = 0):
+    def __init__(self, rd, gd, bd, rmin, gmin, bmin, rmax, gmax, bmax, sleep = 0.5, led_count = 32, spi_port = 0, spi_device = 0, init = (0,0,0)):
         import RPi.GPIO as GPIO # must remain in constructor to only trigger error upon instantiating!
         
         ColourTransition.__init__(self, None
             , rd = lambda x:rd
             , gd = lambda x:gd
             , bd = lambda x:bd
+            , rmin = rmin
+            , gmin = gmin
+            , bmin = bmin
             , rmax = rmax
             , gmax = gmax
             , bmax = bmax
             , sleep = sleep
+            , init = init
             )
         os.environ['SDL_VIDEODRIVER'] = 'dummy'
         pygame.display.init()

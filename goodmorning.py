@@ -108,6 +108,7 @@ def main(argv):
         print(type(ex))
         l.log("Top level error: " + str(ex), l.T_ERROR)
         print("Caught toplevel error '%s'. See logfile %s for more info" % (str(ex), util.LOG_FILE))
+        raise ex
 
 if __name__ == "__main__":
     main(sys.argv[1:])

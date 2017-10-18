@@ -53,7 +53,9 @@ def read_sceneries(file):
         data = json.load(fd)
         for name, scenery_json in data['sceneries'].items():
             rd,gd,bd = scenery_json['rgb_deltas']
-            rmax,gmax,bmax = scenery_json['rgb_max']
+            rmin,gmin,bmin = scenery_json['rgb_min'] if 'rgb_min' in scenery_json else (0,0,0)
+            rmax,gmax,bmax = scenery_json['rgb_max'] if 'rgb_max' in scenery_json else (255,255,255)
+            rinit,ginit,binit = scenery_json['rgb_init'] if 'rgb_init' in scenery_json else (0,0,0) 
             sleep = scenery_json['sleep']
             channels = []
             files = scenery_json['files']
@@ -70,7 +72,7 @@ def read_sceneries(file):
                 channels.append(sound_files)
             if name in sceneries:
                 raise util.AlarmException("Duplicate name for scenery: '%s'. Name must be unique" % (name,))
-            sceneries[name] = Scenery(name, channels, rd,gd,bd, rmax,gmax,bmax, sleep)
+            sceneries[name] = Scenery(name, channels, rd,gd,bd, rmin,gmin,bmin, rmax,gmax,bmax, sleep, init = (rmax,gmax,bmax))
     return sceneries
     
 def read_lullabies(file):

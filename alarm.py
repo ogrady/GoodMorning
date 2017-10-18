@@ -173,13 +173,15 @@ class Alarm(object):
         return "'%s' on %d:%d:%d, %s" % (self.name, self.hour, self.minute, self.second, self.days)
 
 class Scenery(object):
-    def __init__(self, name, sounds, rd, gd, bd, rmax, gmax, bmax, sleep):
+    def __init__(self, name, sounds, rd, gd, bd, rmin, gmin, bmin, rmax, gmax, bmax, sleep, init = (0,0,0)):
         self.name = name
         self.sleep = sleep
         try:
             self.display = display.LED(rd = rd, gd = gd, bd = bd,
+                              rmin = rmin, gmin = gmin, bmin = bmin,
                               rmax = rmax, gmax = gmax, bmax = bmax,
-                              sleep = sleep)
+                              sleep = sleep,
+                              init = init)
             l.log("Initialised scenery '%s'" % (self.name,))
         except RuntimeError as e:
             if str(e) != 'This module can only be run on a Raspberry Pi!':
@@ -192,6 +194,7 @@ class Scenery(object):
             # not running on RaspberryPi -> display the proto
             l.log("Detected dummy environment. Using LEDProto for scenery '%s' instead" % (self.name,))
             self.display = display.LEDProto(rd = rd, gd = gd, bd = bd,
+                                               rmin = rmin, gmin = gmin, bmin = bmin,
                                                rmax = rmax, gmax = gmax, bmax = bmax,
                                                sleep = sleep, led_count = 100)
 
