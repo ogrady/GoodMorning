@@ -72,7 +72,7 @@ def read_sceneries(file):
                 channels.append(sound_files)
             if name in sceneries:
                 raise util.AlarmException("Duplicate name for scenery: '%s'. Name must be unique" % (name,))
-            sceneries[name] = Scenery(name, channels, rd,gd,bd, rmin,gmin,bmin, rmax,gmax,bmax, sleep, init = (rmax,gmax,bmax))
+            sceneries[name] = Scenery(name, channels, rd,gd,bd, rmin,gmin,bmin, rmax,gmax,bmax, sleep, init = (rinit,ginit,binit))
     return sceneries
     
 def read_lullabies(file):

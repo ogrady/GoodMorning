@@ -196,7 +196,7 @@ class Scenery(object):
             self.display = display.LEDProto(rd = rd, gd = gd, bd = bd,
                                                rmin = rmin, gmin = gmin, bmin = bmin,
                                                rmax = rmax, gmax = gmax, bmax = bmax,
-                                               sleep = sleep, led_count = 100)
+                                               sleep = sleep, led_count = 100, init = init)
 
         self.audiomixer = audio.AudioMixer(sound_groups = sounds)
             

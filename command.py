@@ -27,5 +27,8 @@ class CommandDispatcher(object):
                 l.log("Manually executing '%s' with arguments '%s'" % (cmd, args))
                 lullaby = self.lullabies[args[0]]
                 lullaby.ring()
+        elif cmd == "stop":
+                pass
+                # FIXME
         else:
             l.log("Skipping invalid command '%s'" % (command_string,))

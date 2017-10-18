@@ -50,10 +50,14 @@ class ColourTransition(object):
         rd: red delta-function for each step
         gd: green delta-function for each step
         bd: blue delta-function for each step
-        rmax: max for red (255 boundary not checked)
-        gmax: max for green (255 boundary not checked)
-        bmax: max for blue (255 boundary not checked)
+        rmin: min for red
+        gmin: min for green
+        bmin: min for blue
+        rmax: max for red
+        gmax: max for green
+        bmax: max for blue
         sleep: sleep time between each step in seconds
+        init: initial rgb tuple
         '''
         self.display = display
         self.init = init
@@ -61,6 +65,9 @@ class ColourTransition(object):
         self.rd = rd
         self.gd = gd
         self.bd = bd
+        self.rmin = rmin
+        self.gmin = gmin
+        self.bmin = bmin
         self.rmax = rmax
         self.gmax = gmax
         self.bmax = bmax
@@ -76,6 +83,10 @@ class ColourTransition(object):
         r = max(self.rmin, min(self.rmax,(r+self.rd(r))))
         g = max(self.gmin, min(self.gmax,(g+self.gd(g))))
         b = max(self.bmin, min(self.bmax,(b+self.bd(b))))
+        
+        assert 0 <= r <= 255, "invalid red value"
+        assert 0 <= g <= 255, "invalid green value"
+        assert 0 <= b <= 255, "invalid blue value"
         self.rgb = (r,g,b)
     
     def show(self):
@@ -120,14 +131,10 @@ class LEDProto(ColourTransition):
         self.leds[index] = (r,g,b)
         
     def next(self):
+        ColourTransition.next(self)
         r,g,b = self.rgb
-        
-        r = min(self.rmax,(r+self.rd(r)))
-        g = min(self.gmax,(g+self.gd(g)))
-        b = min(self.bmax,(b+self.bd(b)))
         for i in range(len(self.leds)):
             self.set(i,r,g,b)
-        self.rgb = (r,g,b)
         
     def show(self):
         self.display.fill((0,0,0))
@@ -137,7 +144,6 @@ class LEDProto(ColourTransition):
                 self.display,
                 self.leds[i],
                 LEDProto.pygame.Rect(0, s * i + LEDProto.LED_space * i, s, s),
-                0
             )
 
 class LED(ColourTransition):
@@ -165,14 +171,10 @@ class LED(ColourTransition):
         self.pixels.show()
     
     def next(self):
+        ColourTransition.next(self)
         r,g,b = self.rgb
-        
-        r = min(self.rmax,(r+self.rd(r)))
-        g = min(self.gmax,(g+self.gd(g)))
-        b = min(self.bmax,(b+self.bd(b)))
         for i in range(self.pixels.count()):
             self.pixels.set_pixel(i, Strip.RGB_to_color(b,g,r))
-        self.rgb = (r,g,b)
         
     def show(self):
         self.pixels.show()
