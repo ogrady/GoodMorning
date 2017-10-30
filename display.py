@@ -43,6 +43,9 @@ class ColourTransition(object):
         util.TimeTicker.instance.dispatcher.remove_listener(self)
         self.rgb = self.init
         self.elapsed = 0
+        self.clear()
+        self.show()
+
     
     def __init__(self, display, rd = lambda x:0, gd = lambda x:0, bd = lambda x:0, rmin = 0, gmin = 0, bmin = 0, rmax = 255, gmax = 255, bmax = 255, sleep = 0.5, init = (0,0,0)):
         '''
@@ -95,6 +98,12 @@ class ColourTransition(object):
         '''
         self.display.fill(self.rgb)
         
+    def clear(self):
+        '''
+        Clears the display (without showing it)
+        '''
+        pass
+        
     def on_tick(self, elapsed):
         self.elapsed += elapsed
         if self.elapsed >= self.sleep:
@@ -137,7 +146,7 @@ class LEDProto(ColourTransition):
             self.set(i,r,g,b)
         
     def show(self):
-        self.display.fill((0,0,0))
+        self.clear()
         for i in range(len(self.leds)):
             s = LEDProto.LED_size
             LEDProto.pygame.draw.ellipse(
@@ -145,9 +154,18 @@ class LEDProto(ColourTransition):
                 self.leds[i],
                 LEDProto.pygame.Rect(0, s * i + LEDProto.LED_space * i, s, s),
             )
+        pygame.display.update()
+            
+    def clear(self):
+        self.display.fill((0,0,0))
+        
+    def stop(self):
+        r,g,b = (0,0,0)
+        for i in range(len(self.leds)):
+            self.set(i,r,g,b)
+        ColourTransition.stop(self)
 
 class LED(ColourTransition):
-   
     def __init__(self, rd, gd, bd, rmin, gmin, bmin, rmax, gmax, bmax, sleep = 0.5, led_count = 32, spi_port = 0, spi_device = 0, init = (0,0,0)):
         import RPi.GPIO as GPIO # must remain in constructor to only trigger error upon instantiating!
         
@@ -169,17 +187,33 @@ class LED(ColourTransition):
         self.pixels = Strip.WS2801Pixels(led_count, spi=SPI.SpiDev(spi_port, spi_device), gpio=GPIO)
         self.pixels.clear()
         self.pixels.show()
+        
+    def set(self, index, r, g, b):
+        self.pixels.set_pixel(index, Strip.RGB_to_color(b,g,r))
     
     def next(self):
         ColourTransition.next(self)
         r,g,b = self.rgb
         for i in range(self.pixels.count()):
-            self.pixels.set_pixel(i, Strip.RGB_to_color(b,g,r))
+            self.set(i, r,g,b)
         
     def show(self):
         self.pixels.show()
         
-    def stop(self):
-        ColourTransition.stop(self)
+    def clear(self):
         self.pixels.clear()
-        self.pixels.show()
+
+class LEDWatchdog(object):
+    def __init__(self, led):
+        self.led = led
+        self.something_ringing = False
+    
+    def on_ringing_change(self, event):
+        self.something_ringing = event["new"] > 0
+        
+    def on_tick(self, delta):
+        if self.something_ringing:
+            led.clear()
+            print("clearing")
+        else:
+            print("not")

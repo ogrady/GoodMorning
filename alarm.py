@@ -4,6 +4,7 @@ import functools
 import util
 import pygame
 import logger as l
+import util
 
 import display
 import audio
@@ -27,6 +28,16 @@ class Scheduler(object):
         self.sleep = sleep
         self.elapsed = 0
         self.alarms = []
+        self.dispatcher = util.EventDispatcher("on_ringing_change")
+        self.ringing_alarms = 0
+        
+    def on_alarm_state_change(self, event):
+        old = self.ringing_alarms
+        if event["ringing"]:
+            self.ringing_alarms += 1
+        else:
+            self.ringing_alarms -= 1
+        self.dispatcher.dispatch({"old": old, "new": self.ringing_alarms})
         
     def start(self):
         util.TimeTicker.instance.dispatcher.add_listener(self)
@@ -65,11 +76,13 @@ class Scheduler(object):
         else:
             self._scheduler.every().day.at(alarm.string).do(alarm.ring)
         self.alarms.append(alarm)
+        alarm.dispatcher.add_listener(self)
 
     def remove_alarm(self, index):
         if index >= len(self._scheduler.jobs):
             raise SchedulerException("Invalid index %d" % (index))
         self._scheduler.cancel_job(self._scheduler.jobs[index])
+        alarm.dispatcher.remove_listener(self)
 
     def on_tick(self, elapsed):
         self.elapsed += elapsed
@@ -141,6 +154,16 @@ class Alarm(object):
             raise util.AlarmException("Invalid weekday value in: %s" % (str(values),))
         self._days = values
         
+        
+    @property
+    def ringing(self):
+        return self._ringing
+        
+    @ringing.setter
+    def ringing(self, value):
+        self._ringing = value
+        self.dispatcher.dispatch({"alarm": self, "ringing": value})
+        
     def ring(self):
         '''
         Action to take when this alarm rings.
@@ -167,7 +190,8 @@ class Alarm(object):
         self.minute = minute
         self.second = second
         self.days = days
-        self.ringing = False
+        self._ringing = False
+        self.dispatcher = util.EventDispatcher("on_alarm_state_change")
         
     def __str__(self):
         return "'%s' on %d:%d:%d, %s" % (self.name, self.hour, self.minute, self.second, self.days)

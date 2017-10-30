@@ -171,7 +171,6 @@ class PygameEventListener(object):
             self.dispatcher.clear_listeners()
             TimeTicker.instance.dispatcher.remove_listener(self)
         
-
 @Singleton
 class TimeTicker(Thread):
     def __init__(self, delay = 0.5):
@@ -194,6 +193,6 @@ class TimeTicker(Thread):
             now = time.time()
             self.dispatcher.dispatch(now - timestamp)
             timestamp = now
-        
+
 pygame.init()
 
