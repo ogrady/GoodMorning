@@ -53,6 +53,7 @@ class Lightkiller(object):
             self.accu = 0
             if self.scheduler.ringing_alarms == 0:
                 self.display.clear()
+                self.display.show()
         
 
 class GoodMorning(object):
