@@ -26,6 +26,35 @@ import sys
 import getopt
 import atexit
 
+class Lightkiller(object):
+    '''
+    We have this great thing in our appartment
+    where every switch apparently sends a light arc
+    through the whole circuit of the room.
+    That currency is enough to trigger some LEDs
+    on the strip.
+    So whenever we are turning the light in the bedroom
+    on or off the strip lights on and stays like that.
+    
+    This class should take care of it by switching all LEDs
+    off every few seconds as long as no alarm is ringing.
+    '''
+    
+    def __init__(self, scheduler, check_every = 5):
+        self.scheduler = scheduler
+        self.display = scheduler.alarms[0].scenery.display
+        self.accu = 0
+        self.check_every = check_every
+        util.TimeTicker.instance.dispatcher.add_listener(self)
+        
+    def on_tick(self, elapsed):
+        self.accu += elapsed
+        if self.accu >= self.check_every:
+            self.accu = 0
+            if self.scheduler.ringing_alarms == 0:
+                self.display.clear()
+        
+
 class GoodMorning(object):
     DT_LED = 11
     DT_LED_PROTO = 12
@@ -63,6 +92,9 @@ class GoodMorning(object):
 
         # Alarms init
         self.alarm_scheduler = config.read_alarms(config_file)
+        
+        # Watchdog
+        self.lightkiller = Lightkiller(self.alarm_scheduler)
         
     def start(self):
         atexit.register(self.quit)
